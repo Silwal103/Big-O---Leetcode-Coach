@@ -36,6 +36,12 @@ class TutorRequest(BaseModel):
     code: str = Field(default="", description="The user's current solution code.")
     language: str = Field(default="", description="The language of the current solution.")
     mode: str = Field(default="chat", description="The tutor assistance mode.")
+    hint_level: int = Field(
+        default=0,
+        ge=0,
+        le=5,
+        description="Current assistance level for the active problem.",
+    )
     history: list[dict[str, str]] = Field(
         default_factory=list,
         description="Recent conversation messages for the current problem.",
@@ -77,4 +83,24 @@ class TutorResponse(BaseModel):
     reveals_solution: bool = Field(
         default=False,
         description="True only if this response contains the complete solution code.",
+    )
+    correctness: str | None = Field(
+        default=None,
+        description="Optional correctness assessment for an approach review.",
+    )
+    time_complexity: str | None = Field(
+        default=None,
+        description="Optional time complexity assessment.",
+    )
+    space_complexity: str | None = Field(
+        default=None,
+        description="Optional space complexity assessment.",
+    )
+    issues: list[str] = Field(
+        default_factory=list,
+        description="Optional issues found during an approach review.",
+    )
+    next_hint: str | None = Field(
+        default=None,
+        description="Optional next hint for continuing the reasoning process.",
     )

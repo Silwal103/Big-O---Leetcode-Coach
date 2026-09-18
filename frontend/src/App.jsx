@@ -24,6 +24,19 @@ const EMPTY_CONTEXT = {
   url: '',
 }
 
+const TUTOR_MODES = [
+  { id: 'hint', label: 'Give me a hint', message: 'Give me a hint.' },
+  { id: 'stronger_hint', label: 'Stronger hint', message: 'Give me a stronger hint.' },
+  { id: 'explain_concept', label: 'Explain concept', message: 'Explain the key DSA concept for this problem.' },
+  { id: 'review_approach', label: 'Review my approach', message: 'Review my current approach and code.' },
+  { id: 'show_solution', label: 'Show solution', message: 'Show me the complete solution.' },
+]
+
+/**
+ * Render the tutor interface and coordinate its persisted session state.
+ *
+ * @returns {JSX.Element} The LeetCode Coach application.
+ */
 function App() {
   const [messages, setMessages] = useState(() => {
     try {
@@ -43,12 +56,19 @@ function App() {
     }
   })
   const [contextStatus, setContextStatus] = useState(isExtension ? 'Ready to import' : 'Web app mode')
+  const [hintLevel, setHintLevel] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').hintLevel || 0
+    } catch {
+      return 0
+    }
+  })
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, context }))
-  }, [messages, context])
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, context, hintLevel }))
+  }, [messages, context, hintLevel])
 
   const refreshContext = async () => {
     setContextStatus('Reading current tab…')
@@ -64,6 +84,39 @@ function App() {
       setContextStatus('Import failed')
       setError(err.message || 'Could not read the current tab.')
     }
+  }
+
+  /**
+   * Clear the active problem locally and notify the backend of the reset.
+   *
+   * @returns {Promise<void>}
+   */
+  const resetSession = async () => {
+    if (loading) return
+
+    setMessages([])
+    setInput('')
+    setError(null)
+    setContext(EMPTY_CONTEXT)
+    setContextStatus(isExtension ? 'Ready to import' : 'New problem')
+    setHintLevel(0)
+
+    try {
+      const response = await fetch(`${API_BASE}/api/reset`, { method: 'POST' })
+      if (!response.ok) {
+        throw new Error(`Reset failed (${response.status})`)
+      }
+    } catch (err) {
+      setError(err.message || 'Could not reset the current session.')
+    }
+  }
+
+  /** Clear the conversation while preserving the active problem context. */
+  const clearConversation = () => {
+    if (loading) return
+    setMessages([])
+    setHintLevel(0)
+    setError(null)
   }
 
   useEffect(() => {
@@ -83,8 +136,15 @@ function App() {
     inputRef.current?.focus()
   }, [])
 
-  const sendMessage = async () => {
-    const trimmed = input.trim()
+  /**
+   * Send a contextual tutor request and append its response to the chat.
+   *
+   * @param {string} requestedMode - The tutor assistance mode to request.
+   * @param {string} requestedMessage - The message to send to the tutor.
+   * @returns {Promise<void>}
+   */
+  const sendMessage = async (requestedMode = 'chat', requestedMessage = input) => {
+    const trimmed = requestedMessage.trim()
     if (!trimmed || loading) return
 
     // Clear any previous error
@@ -95,6 +155,11 @@ function App() {
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setLoading(true)
+    const requestedHintLevel = requestedMode === 'show_solution'
+      ? 5
+      : requestedMode === 'hint' || requestedMode === 'stronger_hint'
+        ? Math.min(hintLevel + 1, 4)
+        : hintLevel
 
     try {
       const response = await fetch(`${API_BASE}/api/tutor`, {
@@ -108,7 +173,8 @@ function App() {
           examples: context.examples,
           code: context.code,
           language: context.language,
-          mode: 'chat',
+          mode: requestedMode,
+          hint_level: requestedHintLevel,
           history: messages.slice(-10).map(message => ({
             role: message.role,
             content: message.content,
@@ -130,6 +196,7 @@ function App() {
         hintLevel: data.hint_level,
         revealsSolution: data.reveals_solution,
       }
+      setHintLevel(aiMessage.hintLevel)
       setMessages(prev => [...prev, aiMessage])
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
@@ -141,6 +208,16 @@ function App() {
       setLoading(false)
       inputRef.current?.focus()
     }
+  }
+
+  /**
+   * Submit the predefined message associated with a tutor mode.
+   *
+   * @param {string} mode - The tutor assistance mode to request.
+   * @param {string} message - The predefined message for the selected mode.
+   */
+  const requestTutorMode = (mode, message) => {
+    sendMessage(mode, message)
   }
 
   const handleKeyDown = (e) => {
@@ -161,34 +238,71 @@ function App() {
             Refresh tab
           </button>
         )}
+        <button className="context-refresh-btn" onClick={resetSession} disabled={loading}>
+          New problem
+        </button>
+        <button className="context-refresh-btn" onClick={clearConversation} disabled={loading || messages.length === 0}>
+          Clear chat
+        </button>
         <span className="app-header__badge">{contextStatus}</span>
+        <span className="app-header__badge">Level {hintLevel}/5</span>
       </header>
 
       {/* Main Chat Area */}
       <main className="app-main">
-        {isExtension && (
-          <section className="context-panel">
-            <label htmlFor="problem-title">Current problem</label>
-            <input
-              id="problem-title"
-              value={context.title}
-              onChange={event => setContext({ ...context, title: event.target.value })}
-              placeholder="Import a LeetCode problem or enter a title"
-            />
-            <textarea
-              value={context.description}
-              onChange={event => setContext({ ...context, description: event.target.value })}
-              placeholder="Problem statement (editable)"
-              rows={3}
-            />
-            <textarea
-              value={context.code}
-              onChange={event => setContext({ ...context, code: event.target.value })}
-              placeholder="Your current code (editable)"
-              rows={4}
-            />
-          </section>
-        )}
+        <section className="context-panel">
+          <label htmlFor="problem-title">Current problem</label>
+          <input
+            id="problem-title"
+            value={context.title}
+            onChange={event => setContext({ ...context, title: event.target.value })}
+            placeholder="Import a LeetCode problem or enter a title"
+          />
+          <label htmlFor="problem-description">Problem statement</label>
+          <textarea
+            id="problem-description"
+            value={context.description}
+            onChange={event => setContext({ ...context, description: event.target.value })}
+            placeholder="Problem statement (editable)"
+            rows={3}
+          />
+          <label htmlFor="problem-constraints">Constraints</label>
+          <textarea
+            id="problem-constraints"
+            value={context.constraints}
+            onChange={event => setContext({ ...context, constraints: event.target.value })}
+            placeholder="Constraints (optional)"
+            rows={2}
+          />
+          <label htmlFor="problem-examples">Examples</label>
+          <textarea
+            id="problem-examples"
+            value={context.examples}
+            onChange={event => setContext({ ...context, examples: event.target.value })}
+            placeholder="Examples (optional)"
+            rows={2}
+          />
+          <label htmlFor="code-language">Code language</label>
+          <select
+            id="code-language"
+            value={context.language}
+            onChange={event => setContext({ ...context, language: event.target.value })}
+          >
+            <option value="">Select a language</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+          <label htmlFor="current-code">Current code</label>
+          <textarea
+            id="current-code"
+            value={context.code}
+            onChange={event => setContext({ ...context, code: event.target.value })}
+            placeholder="Your current code (editable)"
+            rows={4}
+          />
+        </section>
         <div className="chat-area">
           {messages.length === 0 && !loading && (
             <div className="chat-area__empty">
@@ -247,6 +361,18 @@ function App() {
         </div>
 
         {/* Input Area */}
+        <div className="mode-controls" aria-label="Tutor assistance modes">
+          {TUTOR_MODES.map(mode => (
+            <button
+              key={mode.id}
+              className={`mode-controls__btn mode-controls__btn--${mode.id}`}
+              onClick={() => requestTutorMode(mode.id, mode.message)}
+              disabled={loading}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
         <div className="input-area">
           <textarea
             ref={inputRef}

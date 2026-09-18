@@ -19,6 +19,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.schemas import TutorRequest, TutorResponse
+from chains.prompts import MODE_INSTRUCTIONS
 from chains.tutor import create_tutor_chain
 
 
@@ -102,6 +103,11 @@ async def tutor_endpoint(request: TutorRequest):
             "code": request.code,
             "language": request.language,
             "mode": request.mode,
+            "mode_instructions": MODE_INSTRUCTIONS.get(
+                request.mode,
+                MODE_INSTRUCTIONS["chat"],
+            ),
+            "hint_level": request.hint_level,
             "history": str(request.history),
         })
 
@@ -123,10 +129,10 @@ async def reset_endpoint():
     """
     Reset the current session.
 
-    In Phase 1 there's no session state to reset, so this is a placeholder.
-    Later phases will clear conversation history and problem context.
+    The frontend owns the local session state. This endpoint provides an
+    explicit reset boundary for clients and future server-side state.
     """
-    return {"status": "ok", "message": "Session reset (no state to clear in Phase 1)"}
+    return {"status": "ok", "message": "Session reset"}
 
 
 @app.get("/api/health")

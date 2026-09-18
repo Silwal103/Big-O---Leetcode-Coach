@@ -141,7 +141,8 @@ body {
 }
 
 .context-panel input,
-.context-panel textarea {
+.context-panel textarea,
+.context-panel select {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--border-color);
@@ -153,7 +154,8 @@ body {
 }
 
 .context-panel input:focus,
-.context-panel textarea:focus {
+.context-panel textarea:focus,
+.context-panel select:focus {
   border-color: var(--border-focus);
   outline: none;
 }
@@ -287,6 +289,34 @@ body {
   padding-top: 16px;
   border-top: 1px solid var(--border-color);
   margin-top: auto;
+}
+
+.mode-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.mode-controls__btn {
+  padding: 7px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.mode-controls__btn:hover:not(:disabled) {
+  border-color: var(--border-focus);
+  color: var(--text-primary);
+}
+
+.mode-controls__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .input-area__field {

@@ -131,6 +131,12 @@ User request:
 Assistance mode:
 {mode}
 
+Mode-specific instruction:
+{mode_instructions}
+
+Current hint level:
+{hint_level}
+
 Problem title:
 {problem_title}
 
