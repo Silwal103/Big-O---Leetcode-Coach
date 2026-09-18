@@ -175,8 +175,8 @@ function App() {
       const aiMessage = {
         role: 'ai',
         content: data.response,
-        hintLevel: requestedMode === 'show_solution' ? data.hint_level : Math.min(data.hint_level, requestedHintLevel),
-        revealsSolution: requestedMode === 'show_solution' && data.reveals_solution,
+        hintLevel: data.hint_level,
+        revealsSolution: data.reveals_solution,
       }
       setHintLevel(aiMessage.hintLevel)
       setMessages(prev => [...prev, aiMessage])
@@ -234,19 +234,25 @@ function App() {
             onChange={event => setContext({ ...context, title: event.target.value })}
             placeholder="Import a LeetCode problem or enter a title"
           />
+          <label htmlFor="problem-description">Problem statement</label>
           <textarea
+            id="problem-description"
             value={context.description}
             onChange={event => setContext({ ...context, description: event.target.value })}
             placeholder="Problem statement (editable)"
             rows={3}
           />
+          <label htmlFor="problem-constraints">Constraints</label>
           <textarea
+            id="problem-constraints"
             value={context.constraints}
             onChange={event => setContext({ ...context, constraints: event.target.value })}
             placeholder="Constraints (optional)"
             rows={2}
           />
+          <label htmlFor="problem-examples">Examples</label>
           <textarea
+            id="problem-examples"
             value={context.examples}
             onChange={event => setContext({ ...context, examples: event.target.value })}
             placeholder="Examples (optional)"
@@ -264,7 +270,9 @@ function App() {
             <option value="cpp">C++</option>
             <option value="javascript">JavaScript</option>
           </select>
+          <label htmlFor="current-code">Current code</label>
           <textarea
+            id="current-code"
             value={context.code}
             onChange={event => setContext({ ...context, code: event.target.value })}
             placeholder="Your current code (editable)"
