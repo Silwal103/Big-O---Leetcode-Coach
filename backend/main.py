@@ -19,6 +19,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.schemas import TutorRequest, TutorResponse
+from chains.prompts import MODE_INSTRUCTIONS
 from chains.tutor import create_tutor_chain
 
 
@@ -102,6 +103,10 @@ async def tutor_endpoint(request: TutorRequest):
             "code": request.code,
             "language": request.language,
             "mode": request.mode,
+            "mode_instructions": MODE_INSTRUCTIONS.get(
+                request.mode,
+                MODE_INSTRUCTIONS["chat"],
+            ),
             "hint_level": request.hint_level,
             "history": str(request.history),
         })

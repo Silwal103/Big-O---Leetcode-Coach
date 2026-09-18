@@ -84,3 +84,23 @@ class TutorResponse(BaseModel):
         default=False,
         description="True only if this response contains the complete solution code.",
     )
+    correctness: str | None = Field(
+        default=None,
+        description="Optional correctness assessment for an approach review.",
+    )
+    time_complexity: str | None = Field(
+        default=None,
+        description="Optional time complexity assessment.",
+    )
+    space_complexity: str | None = Field(
+        default=None,
+        description="Optional space complexity assessment.",
+    )
+    issues: list[str] = Field(
+        default_factory=list,
+        description="Optional issues found during an approach review.",
+    )
+    next_hint: str | None = Field(
+        default=None,
+        description="Optional next hint for continuing the reasoning process.",
+    )

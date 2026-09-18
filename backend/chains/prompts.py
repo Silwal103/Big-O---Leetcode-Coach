@@ -53,3 +53,12 @@ Do not claim to have inspected or executed code that was not supplied.
   review it, not execute it.
 - You do NOT have access to LeetCode. The student provides the problem text.
 """
+
+MODE_INSTRUCTIONS = {
+    "chat": "Answer the user's question using the supplied context. Keep the response educational.",
+    "hint": "Give one conceptual hint only. Do not name the complete algorithm or provide code.",
+    "stronger_hint": "Give a more specific algorithmic direction, but do not provide complete code.",
+    "explain_concept": "Explain the relevant DSA concept with a small generic example. Do not solve the entire problem.",
+    "review_approach": "Review the supplied code and approach. Discuss correctness, complexity, bugs, and edge cases without rewriting the whole solution.",
+    "show_solution": "The user explicitly requested the solution. Provide the approach, algorithm, complexity analysis, and complete code in the requested language.",
+}
