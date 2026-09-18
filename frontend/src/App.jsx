@@ -214,6 +214,18 @@ function App() {
             placeholder="Examples (optional)"
             rows={2}
           />
+          <label htmlFor="code-language">Code language</label>
+          <select
+            id="code-language"
+            value={context.language}
+            onChange={event => setContext({ ...context, language: event.target.value })}
+          >
+            <option value="">Select a language</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="javascript">JavaScript</option>
+          </select>
           <textarea
             value={context.code}
             onChange={event => setContext({ ...context, code: event.target.value })}

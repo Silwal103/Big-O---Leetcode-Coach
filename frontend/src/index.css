@@ -141,7 +141,8 @@ body {
 }
 
 .context-panel input,
-.context-panel textarea {
+.context-panel textarea,
+.context-panel select {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--border-color);
@@ -153,7 +154,8 @@ body {
 }
 
 .context-panel input:focus,
-.context-panel textarea:focus {
+.context-panel textarea:focus,
+.context-panel select:focus {
   border-color: var(--border-focus);
   outline: none;
 }
