@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 import './App.css'
 import { getActiveTabContext, isExtension } from './extension'
 
@@ -33,6 +34,8 @@ const TUTOR_MODES = [
 ]
 
 function App() {
+  const shouldReduceMotion = useReducedMotion()
+  const motionTransition = shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: 'easeOut' }
   const [messages, setMessages] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').messages || []
@@ -221,12 +224,20 @@ function App() {
           Clear chat
         </button>
         <span className="app-header__badge">{contextStatus}</span>
-        <span className="app-header__badge">Level {hintLevel}/5</span>
+        <motion.span
+          key={hintLevel}
+          className="app-header__badge"
+          initial={shouldReduceMotion ? false : { opacity: 0.5, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={motionTransition}
+        >
+          Level {hintLevel}/5
+        </motion.span>
       </header>
 
       {/* Main Chat Area */}
       <main className="app-main">
-        <section className="context-panel">
+        <motion.section className="context-panel" layout transition={motionTransition}>
           <label htmlFor="problem-title">Current problem</label>
           <input
             id="problem-title"
@@ -278,7 +289,7 @@ function App() {
             placeholder="Your current code (editable)"
             rows={4}
           />
-        </section>
+        </motion.section>
         <div className="chat-area">
           {messages.length === 0 && !loading && (
             <div className="chat-area__empty">
@@ -291,7 +302,13 @@ function App() {
           )}
 
           {messages.map((msg, idx) => (
-            <div key={idx} className={`message message--${msg.role}`}>
+            <motion.div
+              key={idx}
+              className={`message message--${msg.role}`}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={motionTransition}
+            >
               <span className="message__label">
                 {msg.role === 'user' ? 'You' : 'Tutor'}
               </span>
@@ -310,20 +327,30 @@ function App() {
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
 
           {loading && (
-            <div className="message message--ai">
+            <motion.div
+              className="message message--ai"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={motionTransition}
+            >
               <span className="message__label">Tutor</span>
               <div className="message__bubble">
                 <div className="loading-dots">
-                  <span className="loading-dots__dot" />
-                  <span className="loading-dots__dot" />
-                  <span className="loading-dots__dot" />
+                  {[0, 1, 2].map(index => (
+                    <motion.span
+                      key={index}
+                      className="loading-dots__dot"
+                      animate={shouldReduceMotion ? undefined : { opacity: [0.35, 1, 0.35], y: [0, -2, 0] }}
+                      transition={shouldReduceMotion ? undefined : { duration: 1, repeat: Infinity, delay: index * 0.15 }}
+                    />
+                  ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {error && (
@@ -339,14 +366,16 @@ function App() {
         {/* Input Area */}
         <div className="mode-controls" aria-label="Tutor assistance modes">
           {TUTOR_MODES.map(mode => (
-            <button
+            <motion.button
               key={mode.id}
               className={`mode-controls__btn mode-controls__btn--${mode.id}`}
               onClick={() => requestTutorMode(mode.id, mode.message)}
               disabled={loading}
+              whileHover={shouldReduceMotion ? undefined : { y: -1 }}
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
             >
               {mode.label}
-            </button>
+            </motion.button>
           ))}
         </div>
         <div className="input-area">
@@ -361,14 +390,16 @@ function App() {
             rows={1}
             id="tutor-input"
           />
-          <button
+          <motion.button
             className="input-area__btn"
             onClick={sendMessage}
             disabled={loading || !input.trim()}
             id="ask-tutor-btn"
+            whileHover={shouldReduceMotion ? undefined : { y: -1 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
           >
             {loading ? 'Thinking…' : 'Ask Tutor'}
-          </button>
+          </motion.button>
         </div>
       </main>
     </>
