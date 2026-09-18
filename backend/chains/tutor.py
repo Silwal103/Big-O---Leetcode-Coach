@@ -122,7 +122,37 @@ def create_tutor_chain(
     #   - ("human", ...) → the user's actual question
     prompt = ChatPromptTemplate.from_messages([
         ("system", TUTOR_SYSTEM_PROMPT),
-        ("human", "{user_message}"),
+        (
+            "human",
+            """\
+User request:
+{user_message}
+
+Assistance mode:
+{mode}
+
+Problem title:
+{problem_title}
+
+Problem statement:
+{problem_description}
+
+Constraints:
+{constraints}
+
+Examples:
+{examples}
+
+Programming language:
+{language}
+
+Current user code:
+{code}
+
+Recent conversation history:
+{history}
+""",
+        ),
     ])
 
     # -----------------------------------------------------------------------

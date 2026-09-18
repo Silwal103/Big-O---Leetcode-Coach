@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
+import { getActiveTabContext, isExtension } from './extension'
 
 /**
  * Phase 1 — Minimal Chat UI
@@ -11,14 +12,66 @@ import './App.css'
  */
 
 const API_BASE = 'http://localhost:8000'
+const STORAGE_KEY = 'leetcode-coach-session'
+
+const EMPTY_CONTEXT = {
+  title: '',
+  description: '',
+  constraints: '',
+  examples: '',
+  code: '',
+  language: '',
+  url: '',
+}
 
 function App() {
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').messages || []
+    } catch {
+      return []
+    }
+  })
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [context, setContext] = useState(() => {
+    try {
+      return { ...EMPTY_CONTEXT, ...(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').context || {}) }
+    } catch {
+      return EMPTY_CONTEXT
+    }
+  })
+  const [contextStatus, setContextStatus] = useState(isExtension ? 'Ready to import' : 'Web app mode')
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, context }))
+  }, [messages, context])
+
+  const refreshContext = async () => {
+    setContextStatus('Reading current tab…')
+    setError(null)
+    try {
+      const imported = await getActiveTabContext()
+      setContext(previous => ({
+        ...previous,
+        ...Object.fromEntries(Object.entries(imported).filter(([, value]) => value)),
+      }))
+      setContextStatus(imported.title ? `Imported: ${imported.title}` : 'No LeetCode problem found')
+    } catch (err) {
+      setContextStatus('Import failed')
+      setError(err.message || 'Could not read the current tab.')
+    }
+  }
+
+  useEffect(() => {
+    if (isExtension) {
+      const refreshTimer = window.setTimeout(refreshContext, 0)
+      return () => window.clearTimeout(refreshTimer)
+    }
+  }, [])
 
   // Auto-scroll to the latest message
   useEffect(() => {
@@ -47,7 +100,20 @@ function App() {
       const response = await fetch(`${API_BASE}/api/tutor`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({
+          message: trimmed,
+          problem_title: context.title,
+          problem_description: context.description,
+          constraints: context.constraints,
+          examples: context.examples,
+          code: context.code,
+          language: context.language,
+          mode: 'chat',
+          history: messages.slice(-10).map(message => ({
+            role: message.role,
+            content: message.content,
+          })),
+        }),
       })
 
       if (!response.ok) {
@@ -90,11 +156,39 @@ function App() {
       <header className="app-header">
         <span className="app-header__icon">🧠</span>
         <h1 className="app-header__title">LeetCode Coach</h1>
-        <span className="app-header__badge">Phase 1</span>
+        {isExtension && (
+          <button className="context-refresh-btn" onClick={refreshContext} disabled={loading}>
+            Refresh tab
+          </button>
+        )}
+        <span className="app-header__badge">{contextStatus}</span>
       </header>
 
       {/* Main Chat Area */}
       <main className="app-main">
+        {isExtension && (
+          <section className="context-panel">
+            <label htmlFor="problem-title">Current problem</label>
+            <input
+              id="problem-title"
+              value={context.title}
+              onChange={event => setContext({ ...context, title: event.target.value })}
+              placeholder="Import a LeetCode problem or enter a title"
+            />
+            <textarea
+              value={context.description}
+              onChange={event => setContext({ ...context, description: event.target.value })}
+              placeholder="Problem statement (editable)"
+              rows={3}
+            />
+            <textarea
+              value={context.code}
+              onChange={event => setContext({ ...context, code: event.target.value })}
+              placeholder="Your current code (editable)"
+              rows={4}
+            />
+          </section>
+        )}
         <div className="chat-area">
           {messages.length === 0 && !loading && (
             <div className="chat-area__empty">

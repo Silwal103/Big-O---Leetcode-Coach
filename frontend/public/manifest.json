@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode Coach",
+  "description": "An AI DSA tutor in your browser side panel.",
+  "version": "0.1.0",
+  "permissions": ["sidePanel", "activeTab", "tabs"],
+  "host_permissions": ["http://localhost:8000/*", "https://leetcode.com/*"],
+  "action": {
+    "default_title": "Open LeetCode Coach"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

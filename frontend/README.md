@@ -1,16 +1,44 @@
-# React + Vite
+# LeetCode Coach frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The frontend is a React/Vite app that can run in two modes:
 
-Currently, two official plugins are available:
+- A normal local web app at `http://localhost:5173`.
+- A Chrome/Chromium Manifest V3 side panel that imports context from the active LeetCode tab.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Local web app
 
-## React Compiler
+```powershell
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Browser side panel
 
-## Expanding the Oxlint configuration
+1. Start the FastAPI backend from `backend`:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+   ```powershell
+   .\venv\Scripts\python.exe -m uvicorn main:app --reload --port 8000
+   ```
+
+2. Build the frontend:
+
+   ```powershell
+   npm run build
+   ```
+
+3. Open `chrome://extensions`.
+4. Enable **Developer mode**.
+5. Select **Load unpacked** and choose `frontend\dist`.
+6. Open a LeetCode problem and click the LeetCode Coach extension action.
+7. Use **Refresh tab** in the side panel to import the problem and editor context.
+
+The panel keeps imported fields editable because LeetCode's page structure and editor
+implementation can change. The Gemini API key remains in the backend `.env` file and
+is never sent to the extension.
+
+## Validation
+
+```powershell
+npm run lint
+npm run build
+```

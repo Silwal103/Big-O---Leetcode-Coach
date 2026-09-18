@@ -95,6 +95,14 @@ async def tutor_endpoint(request: TutorRequest):
         # We pass a dict matching the prompt template's variables.
         result = await tutor_chain.ainvoke({
             "user_message": request.message,
+            "problem_title": request.problem_title,
+            "problem_description": request.problem_description,
+            "constraints": request.constraints,
+            "examples": request.examples,
+            "code": request.code,
+            "language": request.language,
+            "mode": request.mode,
+            "history": str(request.history),
         })
 
         # `result` is already a TutorResponse (thanks to structured output).

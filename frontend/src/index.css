@@ -68,6 +68,7 @@ body {
   padding: 18px 24px;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-secondary);
+  flex-wrap: wrap;
 }
 
 .app-header__icon {
@@ -95,6 +96,21 @@ body {
   text-transform: uppercase;
 }
 
+.context-refresh-btn {
+  margin-left: auto;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.context-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* --- Main Content --- */
 .app-main {
   flex: 1;
@@ -104,6 +120,42 @@ body {
   width: 100%;
   margin: 0 auto;
   padding: 24px;
+}
+
+.context-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.context-panel label {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.context-panel input,
+.context-panel textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font: inherit;
+  resize: vertical;
+}
+
+.context-panel input:focus,
+.context-panel textarea:focus {
+  border-color: var(--border-focus);
+  outline: none;
 }
 
 /* --- Chat Area --- */
@@ -288,6 +340,32 @@ body {
 .input-area__btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 420px) {
+  .app-header {
+    justify-content: flex-start;
+    padding: 12px;
+  }
+
+  .app-header__title {
+    font-size: 1rem;
+  }
+
+  .app-header__badge {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-main {
+    padding: 12px;
+  }
+
+  .input-area {
+    flex-direction: column;
+  }
 }
 
 /* --- Loading Dots --- */

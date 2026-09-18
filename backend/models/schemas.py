@@ -29,6 +29,17 @@ class TutorRequest(BaseModel):
         min_length=1,
         description="The user's message or question for the tutor.",
     )
+    problem_title: str = Field(default="", description="Current problem title.")
+    problem_description: str = Field(default="", description="Current problem statement.")
+    constraints: str = Field(default="", description="Current problem constraints.")
+    examples: str = Field(default="", description="Current problem examples.")
+    code: str = Field(default="", description="The user's current solution code.")
+    language: str = Field(default="", description="The language of the current solution.")
+    mode: str = Field(default="chat", description="The tutor assistance mode.")
+    history: list[dict[str, str]] = Field(
+        default_factory=list,
+        description="Recent conversation messages for the current problem.",
+    )
 
 
 # ---------------------------------------------------------------------------
