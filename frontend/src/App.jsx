@@ -24,6 +24,14 @@ const EMPTY_CONTEXT = {
   url: '',
 }
 
+const TUTOR_MODES = [
+  { id: 'hint', label: 'Give me a hint', message: 'Give me a hint.' },
+  { id: 'stronger_hint', label: 'Stronger hint', message: 'Give me a stronger hint.' },
+  { id: 'explain_concept', label: 'Explain concept', message: 'Explain the key DSA concept for this problem.' },
+  { id: 'review_approach', label: 'Review my approach', message: 'Review my current approach and code.' },
+  { id: 'show_solution', label: 'Show solution', message: 'Show me the complete solution.' },
+]
+
 function App() {
   const [messages, setMessages] = useState(() => {
     try {
@@ -102,8 +110,8 @@ function App() {
     inputRef.current?.focus()
   }, [])
 
-  const sendMessage = async () => {
-    const trimmed = input.trim()
+  const sendMessage = async (requestedMode = 'chat', requestedMessage = input) => {
+    const trimmed = requestedMessage.trim()
     if (!trimmed || loading) return
 
     // Clear any previous error
@@ -127,7 +135,7 @@ function App() {
           examples: context.examples,
           code: context.code,
           language: context.language,
-          mode: 'chat',
+          mode: requestedMode,
           history: messages.slice(-10).map(message => ({
             role: message.role,
             content: message.content,
@@ -160,6 +168,10 @@ function App() {
       setLoading(false)
       inputRef.current?.focus()
     }
+  }
+
+  const requestTutorMode = (mode, message) => {
+    sendMessage(mode, message)
   }
 
   const handleKeyDown = (e) => {
@@ -291,6 +303,18 @@ function App() {
         </div>
 
         {/* Input Area */}
+        <div className="mode-controls" aria-label="Tutor assistance modes">
+          {TUTOR_MODES.map(mode => (
+            <button
+              key={mode.id}
+              className={`mode-controls__btn mode-controls__btn--${mode.id}`}
+              onClick={() => requestTutorMode(mode.id, mode.message)}
+              disabled={loading}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
         <div className="input-area">
           <textarea
             ref={inputRef}
