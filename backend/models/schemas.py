@@ -36,6 +36,12 @@ class TutorRequest(BaseModel):
     code: str = Field(default="", description="The user's current solution code.")
     language: str = Field(default="", description="The language of the current solution.")
     mode: str = Field(default="chat", description="The tutor assistance mode.")
+    hint_level: int = Field(
+        default=0,
+        ge=0,
+        le=5,
+        description="Current assistance level for the active problem.",
+    )
     history: list[dict[str, str]] = Field(
         default_factory=list,
         description="Recent conversation messages for the current problem.",

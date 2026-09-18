@@ -51,12 +51,19 @@ function App() {
     }
   })
   const [contextStatus, setContextStatus] = useState(isExtension ? 'Ready to import' : 'Web app mode')
+  const [hintLevel, setHintLevel] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').hintLevel || 0
+    } catch {
+      return 0
+    }
+  })
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, context }))
-  }, [messages, context])
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, context, hintLevel }))
+  }, [messages, context, hintLevel])
 
   const refreshContext = async () => {
     setContextStatus('Reading current tab…')
@@ -82,6 +89,7 @@ function App() {
     setError(null)
     setContext(EMPTY_CONTEXT)
     setContextStatus(isExtension ? 'Ready to import' : 'New problem')
+    setHintLevel(0)
 
     try {
       const response = await fetch(`${API_BASE}/api/reset`, { method: 'POST' })
@@ -122,6 +130,11 @@ function App() {
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setLoading(true)
+    const requestedHintLevel = requestedMode === 'show_solution'
+      ? 5
+      : requestedMode === 'hint' || requestedMode === 'stronger_hint'
+        ? Math.min(hintLevel + 1, 4)
+        : hintLevel
 
     try {
       const response = await fetch(`${API_BASE}/api/tutor`, {
@@ -136,6 +149,7 @@ function App() {
           code: context.code,
           language: context.language,
           mode: requestedMode,
+          hint_level: requestedHintLevel,
           history: messages.slice(-10).map(message => ({
             role: message.role,
             content: message.content,
@@ -154,9 +168,10 @@ function App() {
       const aiMessage = {
         role: 'ai',
         content: data.response,
-        hintLevel: data.hint_level,
-        revealsSolution: data.reveals_solution,
+        hintLevel: requestedMode === 'show_solution' ? data.hint_level : Math.min(data.hint_level, requestedHintLevel),
+        revealsSolution: requestedMode === 'show_solution' && data.reveals_solution,
       }
+      setHintLevel(aiMessage.hintLevel)
       setMessages(prev => [...prev, aiMessage])
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
@@ -196,6 +211,7 @@ function App() {
           New problem
         </button>
         <span className="app-header__badge">{contextStatus}</span>
+        <span className="app-header__badge">Level {hintLevel}/5</span>
       </header>
 
       {/* Main Chat Area */}

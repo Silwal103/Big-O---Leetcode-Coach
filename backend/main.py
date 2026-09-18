@@ -102,6 +102,7 @@ async def tutor_endpoint(request: TutorRequest):
             "code": request.code,
             "language": request.language,
             "mode": request.mode,
+            "hint_level": request.hint_level,
             "history": str(request.history),
         })
 
