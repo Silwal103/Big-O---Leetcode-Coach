@@ -66,6 +66,25 @@ function App() {
     }
   }
 
+  const resetSession = async () => {
+    if (loading) return
+
+    setMessages([])
+    setInput('')
+    setError(null)
+    setContext(EMPTY_CONTEXT)
+    setContextStatus(isExtension ? 'Ready to import' : 'New problem')
+
+    try {
+      const response = await fetch(`${API_BASE}/api/reset`, { method: 'POST' })
+      if (!response.ok) {
+        throw new Error(`Reset failed (${response.status})`)
+      }
+    } catch (err) {
+      setError(err.message || 'Could not reset the current session.')
+    }
+  }
+
   useEffect(() => {
     if (isExtension) {
       const refreshTimer = window.setTimeout(refreshContext, 0)
@@ -161,34 +180,47 @@ function App() {
             Refresh tab
           </button>
         )}
+        <button className="context-refresh-btn" onClick={resetSession} disabled={loading}>
+          New problem
+        </button>
         <span className="app-header__badge">{contextStatus}</span>
       </header>
 
       {/* Main Chat Area */}
       <main className="app-main">
-        {isExtension && (
-          <section className="context-panel">
-            <label htmlFor="problem-title">Current problem</label>
-            <input
-              id="problem-title"
-              value={context.title}
-              onChange={event => setContext({ ...context, title: event.target.value })}
-              placeholder="Import a LeetCode problem or enter a title"
-            />
-            <textarea
-              value={context.description}
-              onChange={event => setContext({ ...context, description: event.target.value })}
-              placeholder="Problem statement (editable)"
-              rows={3}
-            />
-            <textarea
-              value={context.code}
-              onChange={event => setContext({ ...context, code: event.target.value })}
-              placeholder="Your current code (editable)"
-              rows={4}
-            />
-          </section>
-        )}
+        <section className="context-panel">
+          <label htmlFor="problem-title">Current problem</label>
+          <input
+            id="problem-title"
+            value={context.title}
+            onChange={event => setContext({ ...context, title: event.target.value })}
+            placeholder="Import a LeetCode problem or enter a title"
+          />
+          <textarea
+            value={context.description}
+            onChange={event => setContext({ ...context, description: event.target.value })}
+            placeholder="Problem statement (editable)"
+            rows={3}
+          />
+          <textarea
+            value={context.constraints}
+            onChange={event => setContext({ ...context, constraints: event.target.value })}
+            placeholder="Constraints (optional)"
+            rows={2}
+          />
+          <textarea
+            value={context.examples}
+            onChange={event => setContext({ ...context, examples: event.target.value })}
+            placeholder="Examples (optional)"
+            rows={2}
+          />
+          <textarea
+            value={context.code}
+            onChange={event => setContext({ ...context, code: event.target.value })}
+            placeholder="Your current code (editable)"
+            rows={4}
+          />
+        </section>
         <div className="chat-area">
           {messages.length === 0 && !loading && (
             <div className="chat-area__empty">

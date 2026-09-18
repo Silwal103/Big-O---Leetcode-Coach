@@ -123,10 +123,10 @@ async def reset_endpoint():
     """
     Reset the current session.
 
-    In Phase 1 there's no session state to reset, so this is a placeholder.
-    Later phases will clear conversation history and problem context.
+    The frontend owns the local session state. This endpoint provides an
+    explicit reset boundary for clients and future server-side state.
     """
-    return {"status": "ok", "message": "Session reset (no state to clear in Phase 1)"}
+    return {"status": "ok", "message": "Session reset"}
 
 
 @app.get("/api/health")
