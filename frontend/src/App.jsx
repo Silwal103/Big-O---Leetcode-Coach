@@ -32,6 +32,11 @@ const TUTOR_MODES = [
   { id: 'show_solution', label: 'Show solution', message: 'Show me the complete solution.' },
 ]
 
+/**
+ * Render the tutor interface and coordinate its persisted session state.
+ *
+ * @returns {JSX.Element} The LeetCode Coach application.
+ */
 function App() {
   const [messages, setMessages] = useState(() => {
     try {
@@ -81,6 +86,11 @@ function App() {
     }
   }
 
+  /**
+   * Clear the active problem locally and notify the backend of the reset.
+   *
+   * @returns {Promise<void>}
+   */
   const resetSession = async () => {
     if (loading) return
 
@@ -101,6 +111,7 @@ function App() {
     }
   }
 
+  /** Clear the conversation while preserving the active problem context. */
   const clearConversation = () => {
     if (loading) return
     setMessages([])
@@ -125,6 +136,13 @@ function App() {
     inputRef.current?.focus()
   }, [])
 
+  /**
+   * Send a contextual tutor request and append its response to the chat.
+   *
+   * @param {string} requestedMode - The tutor assistance mode to request.
+   * @param {string} requestedMessage - The message to send to the tutor.
+   * @returns {Promise<void>}
+   */
   const sendMessage = async (requestedMode = 'chat', requestedMessage = input) => {
     const trimmed = requestedMessage.trim()
     if (!trimmed || loading) return
@@ -192,6 +210,12 @@ function App() {
     }
   }
 
+  /**
+   * Submit the predefined message associated with a tutor mode.
+   *
+   * @param {string} mode - The tutor assistance mode to request.
+   * @param {string} message - The predefined message for the selected mode.
+   */
   const requestTutorMode = (mode, message) => {
     sendMessage(mode, message)
   }
