@@ -354,10 +354,15 @@ function App() {
           )}
 
           {error && (
-            <div className="error-banner">
+            <motion.div
+              className="error-banner"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={motionTransition}
+            >
               <span className="error-banner__icon">⚠️</span>
               {error}
-            </div>
+            </motion.div>
           )}
 
           <div ref={chatEndRef} />

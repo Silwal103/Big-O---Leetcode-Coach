@@ -411,7 +411,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  animation: messageIn 200ms ease-out;
 }
 
 .error-banner__icon {
