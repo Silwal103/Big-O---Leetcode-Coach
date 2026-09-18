@@ -101,6 +101,13 @@ function App() {
     }
   }
 
+  const clearConversation = () => {
+    if (loading) return
+    setMessages([])
+    setHintLevel(0)
+    setError(null)
+  }
+
   useEffect(() => {
     if (isExtension) {
       const refreshTimer = window.setTimeout(refreshContext, 0)
@@ -209,6 +216,9 @@ function App() {
         )}
         <button className="context-refresh-btn" onClick={resetSession} disabled={loading}>
           New problem
+        </button>
+        <button className="context-refresh-btn" onClick={clearConversation} disabled={loading || messages.length === 0}>
+          Clear chat
         </button>
         <span className="app-header__badge">{contextStatus}</span>
         <span className="app-header__badge">Level {hintLevel}/5</span>
