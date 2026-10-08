@@ -52,7 +52,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 - [ ] Code renders and copies, reviews show badges, Retry works, nothing is injected as HTML
 
 ### Phase 3: Coaching
-- [ ] Task 7: Hint path, Next hint, secondary actions, solution confirmation dialog, Alt shortcuts (M)
+- [x] Task 7: Hint path, Next hint, secondary actions, solution confirmation dialog, Alt shortcuts (M)
 
 ### Checkpoint C: Coaching
 - [ ] Keyboard-only run of the whole hint path through to the solution dialog

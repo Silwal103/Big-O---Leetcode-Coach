@@ -604,6 +604,163 @@ body {
   tab-size: 4;
 }
 
+/* --- Buttons --- */
+.btn {
+  padding: 5px var(--sp-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--text) 25%, transparent);
+  color: var(--text);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.btn--primary:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn--quiet-warn {
+  margin-left: auto;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-3);
+}
+
+.btn--quiet-warn:hover:not(:disabled) {
+  border-color: transparent;
+  color: var(--warn);
+}
+
+.btn--warn {
+  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+/* --- Hint Ladder --- */
+.ladder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+}
+
+.ladder__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+}
+
+.ladder__step {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ladder__next {
+  color: var(--text-3);
+}
+
+.ladder__rail {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+.ladder__seg {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--raised);
+  transition: background var(--dur-slow) var(--ease);
+}
+
+.ladder__seg.is-done {
+  background: var(--accent);
+}
+
+.ladder__seg--solution.is-done {
+  background: var(--warn);
+}
+
+.ladder__actions {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.ladder__actions .btn {
+  padding-inline: 10px;
+}
+
+.ladder__actions .btn--quiet-warn {
+  padding-inline: var(--sp-1);
+}
+
+/* --- Confirm Dialog --- */
+.confirm {
+  max-width: min(320px, calc(100vw - 32px));
+  margin: auto;
+  padding: var(--sp-5);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
+}
+
+.confirm::backdrop {
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.confirm__title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.confirm__body {
+  margin-top: var(--sp-2);
+  color: var(--text-2);
+  font-size: var(--fs-md);
+}
+
+.confirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
+}
+
 /* --- Dock & Composer --- */
 .dock {
   position: sticky;
@@ -709,34 +866,6 @@ body {
   line-height: 14px;
   text-align: center;
   color: var(--text-2);
-}
-
-.mode-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding-top: 12px;
-}
-
-.mode-controls__btn {
-  padding: 7px 10px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-.mode-controls__btn:hover:not(:disabled) {
-  border-color: var(--border-focus);
-  color: var(--text-primary);
-}
-
-.mode-controls__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 @media (max-width: 420px) {

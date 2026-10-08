@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import { getActiveTabContext, isExtension } from './extension'
 import { Composer } from './components/Composer'
 import { Header } from './components/Header'
+import { HintLadder } from './components/HintLadder'
 import { Message } from './components/Message'
 import { ProblemContext } from './components/ProblemContext'
 import { canRetry, isTypingTarget } from './lib/keys'
@@ -19,13 +20,14 @@ import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, u
 
 const API_BASE = 'http://localhost:8000'
 
-const TUTOR_MODES = [
-  { id: 'hint', label: 'Give me a hint', message: 'Give me a hint.' },
-  { id: 'stronger_hint', label: 'Stronger hint', message: 'Give me a stronger hint.' },
-  { id: 'explain_concept', label: 'Explain concept', message: 'Explain the key DSA concept for this problem.' },
-  { id: 'review_approach', label: 'Review my approach', message: 'Review my current approach and code.' },
-  { id: 'show_solution', label: 'Show solution', message: 'Show me the complete solution.' },
-]
+// The message each tutor mode sends; unchanged from the original mode buttons.
+const MODE_MESSAGES = {
+  hint: 'Give me a hint.',
+  stronger_hint: 'Give me a stronger hint.',
+  explain_concept: 'Explain the key DSA concept for this problem.',
+  review_approach: 'Review my current approach and code.',
+  show_solution: 'Show me the complete solution.',
+}
 
 /**
  * Render the tutor interface and coordinate its persisted session state.
@@ -218,10 +220,9 @@ function App() {
    * Submit the predefined message associated with a tutor mode.
    *
    * @param {string} mode - The tutor assistance mode to request.
-   * @param {string} message - The predefined message for the selected mode.
    */
-  const requestTutorMode = (mode, message) => {
-    sendMessage(mode, message)
+  const requestTutorMode = (mode) => {
+    sendMessage(mode, MODE_MESSAGES[mode])
   }
 
   /** Resend the last unanswered user message with its original mode. */
@@ -246,7 +247,6 @@ function App() {
       <Header
         title={context.title}
         status={contextStatus}
-        hintLevel={hintLevel}
         canRefresh={isExtension}
         busy={loading}
         hasMessages={messages.length > 0}
@@ -324,20 +324,7 @@ function App() {
         </div>
 
         <div className="dock">
-          <div className="mode-controls" aria-label="Tutor assistance modes">
-            {TUTOR_MODES.map(mode => (
-              <motion.button
-                key={mode.id}
-                className={`mode-controls__btn mode-controls__btn--${mode.id}`}
-                onClick={() => requestTutorMode(mode.id, mode.message)}
-                disabled={loading}
-                whileHover={shouldReduceMotion ? undefined : { y: -1 }}
-                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-              >
-                {mode.label}
-              </motion.button>
-            ))}
-          </div>
+          <HintLadder level={hintLevel} busy={loading} onRequest={requestTutorMode} />
           <Composer
             value={input}
             onChange={setInput}

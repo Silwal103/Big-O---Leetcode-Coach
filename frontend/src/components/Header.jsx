@@ -19,7 +19,6 @@ const iconProps = {
  * @param {object} props
  * @param {string} props.title - Current problem title.
  * @param {string} props.status - Import status line.
- * @param {number} props.hintLevel - Current hint level (0-5).
  * @param {boolean} props.canRefresh - Whether tab import is available (extension mode).
  * @param {boolean} props.busy - Disables actions while a request is in flight.
  * @param {boolean} props.hasMessages - Enables Clear chat.
@@ -28,7 +27,7 @@ const iconProps = {
  * @param {Function} props.onClearChat
  * @returns {JSX.Element}
  */
-export function Header({ title, status, hintLevel, canRefresh, busy, hasMessages, onRefresh, onNewProblem, onClearChat }) {
+export function Header({ title, status, canRefresh, busy, hasMessages, onRefresh, onNewProblem, onClearChat }) {
   return (
     <header className="app-header">
       <div className="app-header__brand">
@@ -38,9 +37,7 @@ export function Header({ title, status, hintLevel, canRefresh, busy, hasMessages
 
       <div className="problem-chip" title={title || undefined}>
         <span className="problem-chip__title">{title || 'No problem yet'}</span>
-        <span className="problem-chip__meta">
-          {status}{hintLevel > 0 && ` · Level ${hintLevel}/5`}
-        </span>
+        <span className="problem-chip__meta">{status}</span>
       </div>
 
       <div className="app-header__actions">

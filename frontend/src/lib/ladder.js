@@ -1,7 +1,36 @@
 /**
- * Coaching helpers: complexity badges and review verdicts.
- * (The hint-path steps join this module in the hint ladder task.)
+ * Coaching helpers: the hint path, complexity badges and review verdicts.
  */
+
+/** Hint path steps, keyed to the backend's hint_level scale (unchanged). */
+export const STEPS = [
+  { level: 1, label: 'Nudge' },
+  { level: 2, label: 'Hint' },
+  { level: 3, label: 'Approach' },
+  { level: 4, label: 'Pseudocode' },
+  { level: 5, label: 'Solution' },
+]
+
+/**
+ * The step reached at a hint level, or null before the first hint.
+ *
+ * @param {number} [level]
+ * @returns {{ level: number, label: string }|null}
+ */
+export function stepForLevel(level) {
+  return STEPS.find(step => step.level === level) ?? null
+}
+
+/**
+ * Mode "Next hint" sends: gentle hints first, then stronger ones.
+ * (App caps hint levels at 4; only show_solution reaches 5.)
+ *
+ * @param {number} level - Current hint level.
+ * @returns {'hint'|'stronger_hint'}
+ */
+export function nextHintMode(level) {
+  return level < 2 ? 'hint' : 'stronger_hint'
+}
 
 // First O(...) in the string, allowing one level of nested parens: O(n log(n)).
 const BIG_O = /O\(((?:[^()]|\([^()]*\))*)\)/i

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { complexityLabel, complexityTone, correctnessTone } from './ladder.js'
+import { STEPS, complexityLabel, complexityTone, correctnessTone, nextHintMode, stepForLevel } from './ladder.js'
 
 test('complexityTone follows the SPEC colour scale', () => {
   const cases = {
@@ -43,4 +43,22 @@ test('correctnessTone: positive verdicts are ok, everything else warns', () => {
   assert.equal(correctnessTone('Not correct yet'), 'warn')
   assert.equal(correctnessTone('Partially correct'), 'warn')
   assert.equal(correctnessTone('Mostly correct, but misses duplicates'), 'warn')
+})
+
+test('STEPS map the backend hint_level scale 1-5', () => {
+  assert.deepEqual(STEPS.map(step => [step.level, step.label]), [
+    [1, 'Nudge'], [2, 'Hint'], [3, 'Approach'], [4, 'Pseudocode'], [5, 'Solution'],
+  ])
+})
+
+test('stepForLevel: no step before the first hint', () => {
+  assert.equal(stepForLevel(0), null)
+  assert.equal(stepForLevel(1).label, 'Nudge')
+  assert.equal(stepForLevel(4).label, 'Pseudocode')
+  assert.equal(stepForLevel(5).label, 'Solution')
+  assert.equal(stepForLevel(undefined), null)
+})
+
+test('nextHintMode: hint for the first two steps, stronger_hint after', () => {
+  assert.deepEqual([0, 1, 2, 3, 4].map(nextHintMode), ['hint', 'hint', 'stronger_hint', 'stronger_hint', 'stronger_hint'])
 })

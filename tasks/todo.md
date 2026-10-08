@@ -170,7 +170,7 @@ Every message sent is unchanged from the old mode buttons.
 - [ ] All 6 modes are still reachable, with the same requests to `/api/tutor` as before (check in the Network tab).
 
 **Verification:**
-- [ ] `ladder.test.js` (steps part) covers the step for each level 0–5 and `nextHintMode` for levels 0–4. All standard checks pass.
+- [x] `ladder.test.js` (steps part) covers the step for each level 0–5 and `nextHintMode` for levels 0–4. All standard checks pass.
 - [ ] Manual, keyboard only: Alt+H ×4, Alt+R, Alt+E, Tab to Show solution, Esc, then confirm. On macOS, check that Alt doesn't type characters into the composer.
 - [ ] Regression pass
 
