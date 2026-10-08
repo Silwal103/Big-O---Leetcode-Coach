@@ -221,10 +221,10 @@ The thinking row (replacing the loading dots) shows one status line per mode (no
 **Acceptance criteria:**
 - [ ] The toolbar and `chrome://extensions` show the Big-O mascot instead of the letter "L".
 - [ ] The 16 px icon is still recognisable.
-- [ ] `sh scripts/icons.sh` regenerates the PNGs identically.
+- [x] `sh scripts/icons.sh` regenerates the PNGs identically.
 
 **Verification:**
-- [ ] Standard checks; `file public/icons/*.png` reports the right sizes
+- [x] Standard checks; `file public/icons/*.png` reports the right sizes
 - [ ] Manual: reload the extension, look at the toolbar at normal and Retina scaling, then rerun the script and check `git status` shows no changes
 
 **Dependencies:** T8 (the final mascot shape)

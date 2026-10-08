@@ -59,7 +59,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 
 ### Phase 4: Identity
 - [x] Task 8: Mascot states, empty and thinking states, microcopy (M)
-- [ ] Task 9: Toolbar and favicon icons from the mascot SVG (S)
+- [x] Task 9: Toolbar and favicon icons from the mascot SVG (S)
 
 ### Checkpoint D: Complete
 - [ ] Every SPEC success criterion is met
