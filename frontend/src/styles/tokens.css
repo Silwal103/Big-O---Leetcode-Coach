@@ -1,0 +1,45 @@
+/* Big-O design tokens. Every style should resolve to one of these. */
+:root {
+  --bg: #0B0C0E;
+  --surface: #111214;
+  --raised: #17181B;
+  --border: rgb(255 255 255 / 0.07);
+  --border-strong: rgb(255 255 255 / 0.12);
+  --text: #EDEEF0;
+  --text-2: #A0A3A9;
+  --text-3: #6B6E75;
+  --accent: #3CCFB0;
+  --accent-soft: rgb(60 207 176 / 0.12);
+  --warn: #E8A33D;
+  --warn-soft: rgb(232 163 61 / 0.12);
+  --danger: #EF5B5B;
+  --danger-soft: rgb(239 91 91 / 0.1);
+  --ok: #4CC38A;
+
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 15px;
+  --fs-xl: 17px;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 240ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+}

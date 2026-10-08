@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import './App.css'
 import { getActiveTabContext, isExtension } from './extension'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
@@ -26,7 +25,7 @@ const TUTOR_MODES = [
 /**
  * Render the tutor interface and coordinate its persisted session state.
  *
- * @returns {JSX.Element} The LeetCode Coach application.
+ * @returns {JSX.Element} The Big-O application.
  */
 function App() {
   const shouldReduceMotion = useReducedMotion()
@@ -223,7 +222,7 @@ function App() {
       {/* Header */}
       <header className="app-header">
         <span className="app-header__icon">🧠</span>
-        <h1 className="app-header__title">LeetCode Coach</h1>
+        <h1 className="app-header__title">Big-O</h1>
         {isExtension && (
           <button className="context-refresh-btn" onClick={refreshContext} disabled={loading}>
             Refresh tab

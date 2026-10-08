@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "LeetCode Coach",
-  "description": "An AI DSA tutor in your browser side panel.",
+  "name": "Big-O",
+  "description": "A calm coding coach that helps you get unstuck on LeetCode without giving away the answer.",
   "version": "0.1.0",
   "permissions": ["sidePanel", "activeTab", "tabs"],
   "host_permissions": ["http://localhost:8000/*", "https://leetcode.com/*"],
   "action": {
-    "default_title": "Open LeetCode Coach"
+    "default_title": "Open Big-O"
   },
   "side_panel": {
     "default_path": "index.html"

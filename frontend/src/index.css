@@ -1,5 +1,5 @@
 /* ============================================================
-   LeetCode Coach — Phase 1 Minimal Dark Theme
+   Big-O — base and component styles (tokens live in styles/tokens.css)
    ============================================================ */
 
 /* --- Reset & Base --- */
@@ -12,31 +12,29 @@
 }
 
 :root {
-  --bg-primary: #0f1117;
-  --bg-secondary: #1a1d27;
-  --bg-tertiary: #242837;
-  --bg-input: #1e2230;
-  --border-color: #2d3348;
-  --border-focus: #6c63ff;
-  --text-primary: #e8eaed;
-  --text-secondary: #9aa0b4;
-  --text-muted: #636980;
-  --accent: #6c63ff;
-  --accent-hover: #7b73ff;
-  --accent-glow: rgba(108, 99, 255, 0.15);
-  --success: #4caf82;
-  --error: #e05555;
-  --error-bg: rgba(224, 85, 85, 0.1);
-  --user-msg-bg: #262b3e;
-  --ai-msg-bg: #1a1d27;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --transition: 150ms ease;
+  /* Legacy names mapped onto tokens.css; components migrate to the tokens directly as they are rebuilt. */
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--surface);
+  --bg-tertiary: var(--raised);
+  --bg-input: var(--surface);
+  --border-color: var(--border-strong);
+  --border-focus: var(--accent);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-2);
+  --text-muted: var(--text-3);
+  --accent-hover: color-mix(in srgb, var(--accent) 85%, white);
+  --accent-glow: var(--accent-soft);
+  --success: var(--ok);
+  --error: var(--danger);
+  --error-bg: var(--danger-soft);
+  --user-msg-bg: var(--raised);
+  --ai-msg-bg: var(--surface);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --font-mono: var(--mono);
+  --font-sans: var(--font);
+  --transition: var(--dur-fast) var(--ease);
 }
 
 html {
@@ -76,13 +74,10 @@ body {
 }
 
 .app-header__title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--accent), #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .app-header__badge {
@@ -335,7 +330,7 @@ body {
 .input-area__btn {
   padding: 12px 22px;
   background: var(--accent);
-  color: #fff;
+  color: var(--bg);
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
@@ -404,7 +399,7 @@ body {
 .error-banner {
   padding: 10px 16px;
   background: var(--error-bg);
-  border: 1px solid rgba(224, 85, 85, 0.25);
+  border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent);
   border-radius: var(--radius-md);
   color: var(--error);
   font-size: 0.85rem;

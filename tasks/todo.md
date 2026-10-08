@@ -20,11 +20,11 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Acceptance criteria:**
 - [ ] Opening the panel makes no request to `fonts.googleapis.com` or `fonts.gstatic.com`.
 - [ ] Chrome shows "Big-O" on the extensions page and in the panel title. There is no purple and no gradient text.
-- [ ] No file references the deleted assets.
+- [x] No file references the deleted assets.
 
 **Verification:**
-- [ ] Standard checks
-- [ ] `grep -rn "googleapis\|App.css\|hero.png\|react.svg\|vite.svg\|icons.svg" src index.html public` returns nothing
+- [x] Standard checks
+- [x] `grep -rn "googleapis\|App.css\|hero.png\|react.svg\|vite.svg\|icons.svg" src index.html public` returns nothing
 - [ ] Regression pass, and the Network tab shows no font requests
 
 **Dependencies:** None
