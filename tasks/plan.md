@@ -41,10 +41,10 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 - [x] Task 3: Collapsible problem context (S)
 
 ### Checkpoint A: Shell
-- [ ] At 360 px on a problem page, the chat area is visible without scrolling. The full regression pass is clean.
+- [x] At 360 px on a problem page, the chat area is visible without scrolling. The full regression pass is clean.
 
 ### Phase 2: Conversation
-- [ ] Task 4: Document-style messages with safe code-block rendering (M)
+- [x] Task 4: Document-style messages with safe code-block rendering (M)
 - [ ] Task 5: Structured review details with complexity badges (M)
 - [ ] Task 6: Composer, Retry and the `/` shortcut (S)
 

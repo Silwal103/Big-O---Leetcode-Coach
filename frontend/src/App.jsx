@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { getActiveTabContext, isExtension } from './extension'
 import { Header } from './components/Header'
+import { Message } from './components/Message'
 import { ProblemContext } from './components/ProblemContext'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
@@ -236,7 +237,7 @@ function App() {
       {/* Main Chat Area */}
       <main className="app-main">
         <ProblemContext context={context} onChange={setContext} />
-        <div className="chat-area">
+        <div className="chat-area" role="log" aria-live="polite" aria-label="Conversation">
           {messages.length === 0 && !loading && (
             <div className="chat-area__empty">
               <span className="chat-area__empty-icon">💬</span>
@@ -250,29 +251,11 @@ function App() {
           {messages.map((msg, idx) => (
             <motion.div
               key={idx}
-              className={`message message--${msg.role}`}
               initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={motionTransition}
             >
-              <span className="message__label">
-                {msg.role === 'user' ? 'You' : 'Tutor'}
-              </span>
-              <div className="message__bubble">{msg.content}</div>
-              {msg.role === 'ai' && (
-                <div className="message__meta">
-                  {msg.hintLevel > 0 && (
-                    <span className="message__tag message__tag--hint">
-                      Hint Level {msg.hintLevel}/5
-                    </span>
-                  )}
-                  {msg.revealsSolution && (
-                    <span className="message__tag message__tag--solution">
-                      Solution Revealed
-                    </span>
-                  )}
-                </div>
-              )}
+              <Message message={msg} />
             </motion.div>
           ))}
 

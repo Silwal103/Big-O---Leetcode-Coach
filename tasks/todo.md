@@ -74,7 +74,7 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 ---
 
 ## Checkpoint A: Shell
-- [ ] Standard checks, plus the backend suite (`cd backend && .venv/bin/python -m unittest discover tests`), unchanged
+- [x] Standard checks, plus the backend suite (`cd backend && .venv/bin/python -m unittest discover tests`), unchanged
 - [ ] At 360 px on a problem page, the header, a collapsed context and the chat area are all visible without scrolling
 - [ ] Full regression pass
 - [ ] Human review of the look before Phase 2
@@ -83,7 +83,7 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 
 ## Task 4: Document-style messages with safe code-block rendering
 
-**Description:** Add `src/lib/richText.js`, which turns text into `[{type:'text'|'code'|'block', value, lang?}]` covering fenced blocks, inline code and unclosed fences, plus `richText.test.js`. Add `Message.jsx`:
+**Description:** (Scope widened after Checkpoint A feedback: replies showed raw `**`, `$…$` and list markers, so richText also handles headings, lists, bold/italic and common LaTeX → Unicode.) Add `src/lib/richText.js`, which turns text into `[{type:'text'|'code'|'block', value, lang?}]` covering fenced blocks, inline code and unclosed fences, plus `richText.test.js`. Add `Message.jsx`:
 - Tutor replies have no bubble and a 2px left rule coloured by type: hint = accent, solution = warn, chat or concept = neutral.
 - User messages are compact and right-aligned.
 - `CodeBlock` shows the language label and a Copy button that briefly reads "Copied" (or "Copy failed").
@@ -92,12 +92,12 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 
 **Acceptance criteria:**
 - [ ] A solution reply's code renders in a monospace block with its language label. Copy puts the exact code on the clipboard.
-- [ ] Text that looks like HTML (`<b>x</b>`, `<script>`) shows as literal text. There is no `dangerouslySetInnerHTML` anywhere.
+- [x] Text that looks like HTML (`<b>x</b>`, `<script>`) shows as literal text. There is no `dangerouslySetInnerHTML` anywhere.
 - [ ] VoiceOver announces new tutor replies.
 
 **Verification:**
-- [ ] `richText.test.js` covers plain text, inline code, a fence with a language, a fence without one, an unclosed fence, HTML-looking input and empty input. All standard checks pass.
-- [ ] `grep -rn dangerouslySetInnerHTML src` returns nothing
+- [x] `richText.test.js` covers plain text, inline code, a fence with a language, a fence without one, an unclosed fence, HTML-looking input and empty input. All standard checks pass.
+- [x] `grep -rn dangerouslySetInnerHTML src` returns nothing
 - [ ] Manual: ask for the solution, check the code block, paste the copied code into an editor, then a VoiceOver spot check
 
 **Dependencies:** T1
