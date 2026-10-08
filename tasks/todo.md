@@ -39,13 +39,13 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 
 **Acceptance criteria:**
 - [x] At 360 px the header is a single row with nothing wrapping. A long title is cut off with an ellipsis, and the full title is in its tooltip.
-- [ ] Each icon button has an accessible name and a visible focus ring, and is disabled under the same conditions as before.
-- [ ] Refresh tab, New problem and Clear chat behave exactly as before.
+- [x] Each icon button has an accessible name and a visible focus ring, and is disabled under the same conditions as before.
+- [x] Refresh tab, New problem and Clear chat behave exactly as before.
 
 **Verification:**
 - [x] Standard checks
-- [ ] Manual at 360 and 500 px. Tab through the header and check the focus ring is visible on every button.
-- [ ] Regression pass
+- [x] Manual at 360 and 500 px. Tab through the header and check the focus ring is visible on every button.
+- [x] Regression pass
 
 **Dependencies:** T1
 **Files:** `src/components/{Header,IconButton,Mascot}.jsx` (new), `src/App.jsx`, `src/index.css`
@@ -59,13 +59,13 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 
 **Acceptance criteria:**
 - [x] Collapsed by default, so at 360 px the chat area is visible without scrolling.
-- [ ] Editing any field works exactly as before and is still saved with the session.
-- [ ] Esc collapses it and returns focus to the toggle.
+- [x] Editing any field works exactly as before and is still saved with the session.
+- [x] Esc collapses it and returns focus to the toggle.
 
 **Verification:**
 - [x] Standard checks
-- [ ] Manual: edit the title and code, reload the panel, and check the edits were saved. Use the keyboard to open, edit and press Esc.
-- [ ] Regression pass
+- [x] Manual: edit the title and code, reload the panel, and check the edits were saved. Use the keyboard to open, edit and press Esc.
+- [x] Regression pass
 
 **Dependencies:** T1
 **Files:** `src/components/ProblemContext.jsx` (new), `src/App.jsx`, `src/index.css`
@@ -75,9 +75,9 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 
 ## Checkpoint A: Shell
 - [x] Standard checks, plus the backend suite (`cd backend && .venv/bin/python -m unittest discover tests`), unchanged
-- [ ] At 360 px on a problem page, the header, a collapsed context and the chat area are all visible without scrolling
-- [ ] Full regression pass
-- [ ] Human review of the look before Phase 2
+- [x] At 360 px on a problem page, the header, a collapsed context and the chat area are all visible without scrolling
+- [x] Full regression pass
+- [x] Human review of the look before Phase 2
 
 ---
 
@@ -91,7 +91,7 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 - The existing hint-level and solution-revealed tags are restyled.
 
 **Acceptance criteria:**
-- [ ] A solution reply's code renders in a monospace block with its language label. Copy puts the exact code on the clipboard.
+- [x] A solution reply's code renders in a monospace block with its language label. Copy puts the exact code on the clipboard.
 - [x] Text that looks like HTML (`<b>x</b>`, `<script>`) shows as literal text. There is no `dangerouslySetInnerHTML` anywhere.
 - [ ] VoiceOver announces new tutor replies.
 
@@ -113,11 +113,11 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Acceptance criteria:**
 - [x] A "Review my approach" reply shows whichever of correctness, Time, Space, issues and the next hint the backend returned. If none came back, it looks like a plain reply.
 - [x] Badge colours follow the SPEC: O(1)/O(log n) ok, O(n) accent, O(n log n) warn, O(n²) or worse danger, unrecognized neutral.
-- [ ] Messages saved before this change still render.
+- [x] Messages saved before this change still render.
 
 **Verification:**
 - [x] `ladder.test.js` (complexity part) covers `O(1)`, `O(log n)`, `O(N)`, `O(n log n)`, `O(n^2)`, `O(n²)`, `O(2^n)`, `O(n * m)` → neutral, `''` → neutral. All standard checks pass.
-- [ ] Manual: review correct and incorrect code on a real problem, then reload the panel and check the old messages still render
+- [x] Manual: review correct and incorrect code on a real problem, then reload the panel and check the old messages still render
 
 **Dependencies:** T4
 **Files:** `src/lib/ladder.js`, `src/lib/ladder.test.js` (new), `src/components/Message.jsx`, `src/App.jsx`, `src/index.css`
@@ -130,14 +130,14 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Description:** Add `Composer.jsx`: a sticky bar with the glass effect, a textarea that grows up to about 6 lines, an icon Send button, and a hint line "↵ send · ⇧↵ newline" using `Kbd.jsx`. Enter and Shift+Enter behave exactly as before. Restyle the error banner (no emoji) and add **Retry**: `App` records the last `(mode, message)` passed to `sendMessage`; Retry calls `sendMessage(mode, message, retry = true)`, which keeps the already-shown failed message (no duplicate) and leaves it out of the history it sends. User messages now store their `mode` so Retry knows what to resend. Pressing `/` anywhere outside a text field focuses the composer.
 
 **Acceptance criteria:**
-- [ ] Sending, Enter, Shift+Enter, and the disabled state while loading all behave as before.
-- [ ] With the backend stopped: send, then the error appears. Start the backend and click Retry: the reply arrives and the user message appears only once.
-- [ ] `/` focuses the composer, and typing `/` inside any text field still types the character.
+- [x] Sending, Enter, Shift+Enter, and the disabled state while loading all behave as before.
+- [x] With the backend stopped: send, then the error appears. Start the backend and click Retry: the reply arrives and the user message appears only once.
+- [x] `/` focuses the composer, and typing `/` inside any text field still types the character.
 
 **Verification:**
 - [x] Standard checks
-- [ ] Manual: the Retry flow above, the `/` shortcut, and a 6-line message at 360 px
-- [ ] Regression pass
+- [x] Manual: the Retry flow above, the `/` shortcut, and a 6-line message at 360 px
+- [x] Regression pass
 
 **Dependencies:** T1
 **Files:** `src/components/{Composer,Kbd}.jsx` (new), `src/App.jsx`, `src/index.css`
@@ -146,10 +146,10 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 ---
 
 ## Checkpoint B: Conversation
-- [ ] Standard checks, plus the backend suite, unchanged
-- [ ] Code blocks render and copy, review badges appear, Retry works, and no HTML is injected
-- [ ] Full regression pass, and a keyboard-only send and Retry
-- [ ] Human review
+- [x] Standard checks, plus the backend suite, unchanged
+- [x] Code blocks render and copy, review badges appear, Retry works, and no HTML is injected
+- [x] Full regression pass, and a keyboard-only send and Retry
+- [x] Human review
 
 ---
 
@@ -165,14 +165,14 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 Every message sent is unchanged from the old mode buttons.
 
 **Acceptance criteria:**
-- [ ] Next hint from level 0 goes Nudge → Hint → Approach → Pseudocode and stays there. Solution is reached only through the dialog.
-- [ ] In the dialog, Esc or Cancel sends nothing and returns focus to Show solution, and focus stays inside the dialog while it's open.
-- [ ] All 6 modes are still reachable, with the same requests to `/api/tutor` as before (check in the Network tab).
+- [x] Next hint from level 0 goes Nudge → Hint → Approach → Pseudocode and stays there. Solution is reached only through the dialog.
+- [x] In the dialog, Esc or Cancel sends nothing and returns focus to Show solution, and focus stays inside the dialog while it's open.
+- [x] All 6 modes are still reachable, with the same requests to `/api/tutor` as before (check in the Network tab).
 
 **Verification:**
 - [x] `ladder.test.js` (steps part) covers the step for each level 0–5 and `nextHintMode` for levels 0–4. All standard checks pass.
-- [ ] Manual, keyboard only: Alt+H ×4, Alt+R, Alt+E, Tab to Show solution, Esc, then confirm. On macOS, check that Alt doesn't type characters into the composer.
-- [ ] Regression pass
+- [x] Manual, keyboard only: Alt+H ×4, Alt+R, Alt+E, Tab to Show solution, Esc, then confirm. On macOS, check that Alt doesn't type characters into the composer.
+- [x] Regression pass
 
 **Dependencies:** T5 (ladder.js), T2 (the level badge is gone)
 **Files:** `src/lib/ladder.js`, `src/lib/ladder.test.js`, `src/components/HintLadder.jsx` (new), `src/App.jsx`, `src/index.css`
@@ -181,9 +181,9 @@ Every message sent is unchanged from the old mode buttons.
 ---
 
 ## Checkpoint C: Coaching
-- [ ] Standard checks
-- [ ] Keyboard-only run of the whole hint path through to the solution dialog
-- [ ] Human review of how the coaching flow feels
+- [x] Standard checks
+- [x] Keyboard-only run of the whole hint path through to the solution dialog
+- [x] Human review of how the coaching flow feels
 
 ---
 

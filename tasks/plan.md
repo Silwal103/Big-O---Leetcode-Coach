@@ -49,13 +49,13 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 - [x] Task 6: Composer, Retry and the `/` shortcut (S)
 
 ### Checkpoint B: Conversation
-- [ ] Code renders and copies, reviews show badges, Retry works, nothing is injected as HTML
+- [x] Code renders and copies, reviews show badges, Retry works, nothing is injected as HTML
 
 ### Phase 3: Coaching
 - [x] Task 7: Hint path, Next hint, secondary actions, solution confirmation dialog, Alt shortcuts (M)
 
 ### Checkpoint C: Coaching
-- [ ] Keyboard-only run of the whole hint path through to the solution dialog
+- [x] Keyboard-only run of the whole hint path through to the solution dialog
 
 ### Phase 4: Identity
 - [ ] Task 8: Mascot states, empty and thinking states, microcopy (M)
