@@ -58,7 +58,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 - [x] Keyboard-only run of the whole hint path through to the solution dialog
 
 ### Phase 4: Identity
-- [ ] Task 8: Mascot states, empty and thinking states, microcopy (M)
+- [x] Task 8: Mascot states, empty and thinking states, microcopy (M)
 - [ ] Task 9: Toolbar and favicon icons from the mascot SVG (S)
 
 ### Checkpoint D: Complete

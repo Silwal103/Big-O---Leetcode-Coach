@@ -27,5 +27,5 @@ export function contextSummary(context) {
   const code = (context.code || '').trim()
   const lines = code ? code.split('\n').length : 0
   const size = lines > 1 ? `${lines} lines` : code ? 'Code added' : ''
-  return [language, size].filter(Boolean).join(' · ') || 'Problem details'
+  return [language, size || 'No code yet'].filter(Boolean).join(' · ')
 }

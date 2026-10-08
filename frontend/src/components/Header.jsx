@@ -19,6 +19,7 @@ const iconProps = {
  * @param {object} props
  * @param {string} props.title - Current problem title.
  * @param {string} props.status - Import status line.
+ * @param {string} props.mascotState - Pose for the brand mascot.
  * @param {boolean} props.canRefresh - Whether tab import is available (extension mode).
  * @param {boolean} props.busy - Disables actions while a request is in flight.
  * @param {boolean} props.hasMessages - Enables Clear chat.
@@ -27,11 +28,11 @@ const iconProps = {
  * @param {Function} props.onClearChat
  * @returns {JSX.Element}
  */
-export function Header({ title, status, canRefresh, busy, hasMessages, onRefresh, onNewProblem, onClearChat }) {
+export function Header({ title, status, mascotState, canRefresh, busy, hasMessages, onRefresh, onNewProblem, onClearChat }) {
   return (
     <header className="app-header">
       <div className="app-header__brand">
-        <Mascot size={22} />
+        <Mascot size={22} state={mascotState} />
         <h1 className="app-header__title">Big-O</h1>
       </div>
 

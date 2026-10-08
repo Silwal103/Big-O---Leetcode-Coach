@@ -5,8 +5,10 @@ import { Composer } from './components/Composer'
 import { Header } from './components/Header'
 import { HintLadder } from './components/HintLadder'
 import { Message } from './components/Message'
+import { EmptyState, ThinkingRow } from './components/States'
 import { ProblemContext } from './components/ProblemContext'
 import { canRetry, isTypingTarget } from './lib/keys'
+import { mascotState } from './lib/mascot'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
 /**
@@ -47,6 +49,8 @@ function App() {
   const [context, setContext] = useState(() => sessionFor(initialStore).context)
   const [contextStatus, setContextStatus] = useState(isExtension ? 'Ready to import' : 'Web app mode')
   const [hintLevel, setHintLevel] = useState(() => sessionFor(initialStore).hintLevel)
+  // True for a moment after a reply lands, so the mascot can react to it.
+  const [recentReply, setRecentReply] = useState(false)
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -203,6 +207,7 @@ function App() {
         nextHint: data.next_hint,
       }
       setHintLevel(aiMessage.hintLevel)
+      setRecentReply(true)
       setMessages(prev => [...prev, aiMessage])
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
@@ -223,6 +228,21 @@ function App() {
    */
   const requestTutorMode = (mode) => {
     sendMessage(mode, MODE_MESSAGES[mode])
+  }
+
+  useEffect(() => {
+    if (!recentReply) return
+    const timer = window.setTimeout(() => setRecentReply(false), 1500)
+    return () => window.clearTimeout(timer)
+  }, [recentReply])
+
+  const lastMessage = messages.at(-1)
+  const mascot = mascotState({ loading, mode: lastMessage?.mode, error, lastMessage, recent: recentReply })
+
+  /** Fill the composer with a starter question without sending it. */
+  const suggest = (text) => {
+    setInput(text)
+    inputRef.current?.focus()
   }
 
   /** Resend the last unanswered user message with its original mode. */
@@ -247,6 +267,7 @@ function App() {
       <Header
         title={context.title}
         status={contextStatus}
+        mascotState={mascot}
         canRefresh={isExtension}
         busy={loading}
         hasMessages={messages.length > 0}
@@ -259,15 +280,7 @@ function App() {
       <main className="app-main">
         <ProblemContext context={context} onChange={setContext} />
         <div className="chat-area" role="log" aria-live="polite" aria-label="Conversation">
-          {messages.length === 0 && !loading && (
-            <div className="chat-area__empty">
-              <span className="chat-area__empty-icon">💬</span>
-              <p className="chat-area__empty-title">Ask your DSA tutor anything</p>
-              <p className="chat-area__empty-subtitle">
-                Try asking about a problem, requesting a hint, or discussing a data structure concept.
-              </p>
-            </div>
-          )}
+          {messages.length === 0 && !loading && <EmptyState onSuggest={suggest} />}
 
           {messages.map((msg, idx) => (
             <motion.div
@@ -280,28 +293,7 @@ function App() {
             </motion.div>
           ))}
 
-          {loading && (
-            <motion.div
-              className="message message--ai"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={motionTransition}
-            >
-              <span className="message__label">Tutor</span>
-              <div className="message__bubble">
-                <div className="loading-dots">
-                  {[0, 1, 2].map(index => (
-                    <motion.span
-                      key={index}
-                      className="loading-dots__dot"
-                      animate={shouldReduceMotion ? undefined : { opacity: [0.35, 1, 0.35], y: [0, -2, 0] }}
-                      transition={shouldReduceMotion ? undefined : { duration: 1, repeat: Infinity, delay: index * 0.15 }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
+          {loading && <ThinkingRow mode={lastMessage?.mode} />}
 
           {error && (
             <motion.div

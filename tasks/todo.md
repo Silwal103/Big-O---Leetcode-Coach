@@ -196,7 +196,7 @@ Every message sent is unchanged from the old mode buttons.
 - A review said the code is correct → success, for about 1.5 s.
 - Otherwise idle.
 
-The thinking row (replacing the loading dots) shows a 20 px mascot and one status line per mode that rotates every 2 s, for example a review shows "Reading your code…" then "Checking edge cases…". The empty state shows a 56 px mascot, "Stuck? Let's find the smallest next step." and 3 suggestion buttons that fill the composer without sending.
+The thinking row (replacing the loading dots) shows one status line per mode (no second mascot: the header mascot carries the live state) that rotates every 2 s, for example a review shows "Reading your code…" then "Checking edge cases…". The empty state shows a 56 px mascot, "Stuck? Let's find the smallest next step." and 3 suggestion buttons that fill the composer without sending.
 
 **Acceptance criteria:**
 - [ ] Each state appears in its situation: send, review, error, hint, a correct review, and an empty session.
@@ -204,7 +204,7 @@ The thinking row (replacing the loading dots) shows a 20 px mascot and one statu
 - [ ] The suggestion buttons fill the composer and focus it without sending.
 
 **Verification:**
-- [ ] Standard checks
+- [x] Standard checks
 - [ ] Manual: trigger every state, then repeat with reduced motion on. Check the Performance panel shows no long tasks while thinking.
 - [ ] Regression pass
 

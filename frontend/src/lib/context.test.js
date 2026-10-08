@@ -14,10 +14,10 @@ test('contextSummary prompts when nothing is filled in', () => {
 
 test('contextSummary lists language label and code size', () => {
   assert.equal(contextSummary({ title: 'Two Sum', language: 'java', code: 'a\nb\nc' }), 'Java · 3 lines')
-  assert.equal(contextSummary({ title: 'Two Sum', language: 'cpp', code: '' }), 'C++')
+  assert.equal(contextSummary({ title: 'Two Sum', language: 'cpp', code: '' }), 'C++ · No code yet')
   // Imported Monaco code arrives on one line, so don't claim "1 line".
   assert.equal(contextSummary({ title: 'Two Sum', language: '', code: 'class Solution {}' }), 'Code added')
-  assert.equal(contextSummary({ title: 'Two Sum', language: '', code: '' }), 'Problem details')
+  assert.equal(contextSummary({ title: 'Two Sum', language: '', code: '' }), 'No code yet')
 })
 
 test('LANGUAGES keeps the existing select values', () => {
