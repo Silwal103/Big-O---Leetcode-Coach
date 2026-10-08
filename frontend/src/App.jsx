@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { getActiveTabContext, isExtension } from './extension'
 import { Header } from './components/Header'
+import { ProblemContext } from './components/ProblemContext'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
 /**
@@ -234,59 +235,7 @@ function App() {
 
       {/* Main Chat Area */}
       <main className="app-main">
-        <motion.section className="context-panel" layout transition={motionTransition}>
-          <label htmlFor="problem-title">Current problem</label>
-          <input
-            id="problem-title"
-            value={context.title}
-            onChange={event => setContext({ ...context, title: event.target.value })}
-            placeholder="Import a LeetCode problem or enter a title"
-          />
-          <label htmlFor="problem-description">Problem statement</label>
-          <textarea
-            id="problem-description"
-            value={context.description}
-            onChange={event => setContext({ ...context, description: event.target.value })}
-            placeholder="Problem statement (editable)"
-            rows={3}
-          />
-          <label htmlFor="problem-constraints">Constraints</label>
-          <textarea
-            id="problem-constraints"
-            value={context.constraints}
-            onChange={event => setContext({ ...context, constraints: event.target.value })}
-            placeholder="Constraints (optional)"
-            rows={2}
-          />
-          <label htmlFor="problem-examples">Examples</label>
-          <textarea
-            id="problem-examples"
-            value={context.examples}
-            onChange={event => setContext({ ...context, examples: event.target.value })}
-            placeholder="Examples (optional)"
-            rows={2}
-          />
-          <label htmlFor="code-language">Code language</label>
-          <select
-            id="code-language"
-            value={context.language}
-            onChange={event => setContext({ ...context, language: event.target.value })}
-          >
-            <option value="">Select a language</option>
-            <option value="python">Python</option>
-            <option value="java">Java</option>
-            <option value="cpp">C++</option>
-            <option value="javascript">JavaScript</option>
-          </select>
-          <label htmlFor="current-code">Current code</label>
-          <textarea
-            id="current-code"
-            value={context.code}
-            onChange={event => setContext({ ...context, code: event.target.value })}
-            placeholder="Your current code (editable)"
-            rows={4}
-          />
-        </motion.section>
+        <ProblemContext context={context} onChange={setContext} />
         <div className="chat-area">
           {messages.length === 0 && !loading && (
             <div className="chat-area__empty">

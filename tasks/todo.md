@@ -58,12 +58,12 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Description:** Move the 6 context fields into `ProblemContext.jsx`, with the fields unchanged and edits still going through `setContext`. By default it collapses to a summary row: "Problem details · Java · 24 lines", or "Add problem details" when empty. It opens with an "Edit" disclosure (`aria-expanded`), and `Esc` collapses it when focus is inside. It opens automatically when the import finds no problem and the context is empty.
 
 **Acceptance criteria:**
-- [ ] Collapsed by default, so at 360 px the chat area is visible without scrolling.
+- [x] Collapsed by default, so at 360 px the chat area is visible without scrolling.
 - [ ] Editing any field works exactly as before and is still saved with the session.
 - [ ] Esc collapses it and returns focus to the toggle.
 
 **Verification:**
-- [ ] Standard checks
+- [x] Standard checks
 - [ ] Manual: edit the title and code, reload the panel, and check the edits were saved. Use the keyboard to open, edit and press Esc.
 - [ ] Regression pass
 

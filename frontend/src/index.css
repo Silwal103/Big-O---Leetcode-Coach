@@ -186,42 +186,99 @@ body {
   padding: 24px;
 }
 
-.context-panel {
+.problem-context {
+  margin-bottom: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.problem-context__toggle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.problem-context__toggle:hover .problem-context__action {
+  color: var(--text);
+}
+
+.problem-context__toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.problem-context__label {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.problem-context__summary {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-3);
+}
+
+.problem-context__action {
+  color: var(--accent);
+  font-weight: 500;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.problem-context__fields {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3) var(--sp-3);
+  border-top: 1px solid var(--border);
 }
 
-.context-panel label {
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+.problem-context__fields label {
+  margin-top: var(--sp-1);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  font-weight: 500;
 }
 
-.context-panel input,
-.context-panel textarea,
-.context-panel select {
+.problem-context__fields input,
+.problem-context__fields textarea,
+.problem-context__fields select {
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-input);
-  color: var(--text-primary);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  color: var(--text);
   font: inherit;
+  font-size: var(--fs-md);
   resize: vertical;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
 
-.context-panel input:focus,
-.context-panel textarea:focus,
-.context-panel select:focus {
-  border-color: var(--border-focus);
+.problem-context__fields .problem-context__code {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+}
+
+.problem-context__fields input:focus-visible,
+.problem-context__fields textarea:focus-visible,
+.problem-context__fields select:focus-visible {
   outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* --- Chat Area --- */

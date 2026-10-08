@@ -38,7 +38,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 ### Phase 1: Shell
 - [x] Task 1: Design tokens, system fonts, rename to Big-O, delete template leftovers (S)
 - [x] Task 2: Header: mascot mark, wordmark, problem chip, icon actions (M)
-- [ ] Task 3: Collapsible problem context (S)
+- [x] Task 3: Collapsible problem context (S)
 
 ### Checkpoint A: Shell
 - [ ] At 360 px on a problem page, the chat area is visible without scrolling. The full regression pass is clean.
