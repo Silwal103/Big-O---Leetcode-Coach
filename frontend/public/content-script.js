@@ -8,6 +8,22 @@ function textFromSelectors(selectors) {
   return ''
 }
 
+function editorCode() {
+  // Monaco renders each line as an absolutely positioned .view-line (DOM order != line order)
+  // and draws spaces as NBSP, so join the lines ourselves instead of reading one textContent.
+  // ponytail: Monaco only renders lines near the viewport; very long code scrolled out of view
+  // is cut. Upgrade path: read monaco.editor.getModels() via chrome.scripting in the MAIN world.
+  const lines = [...document.querySelectorAll('.monaco-editor .view-line')]
+  if (lines.length) {
+    return lines
+      .sort((a, b) => parseFloat(a.style.top) - parseFloat(b.style.top))
+      .map(line => line.textContent.replace(/\u00a0/g, ' '))
+      .join('\n')
+      .trimEnd()
+  }
+  return textFromSelectors(['.CodeMirror-code', '[contenteditable="true"]'])
+}
+
 function extractLeetCodeContext() {
   const title = textFromSelectors([
     '[data-cy="question-title"]',
@@ -21,11 +37,7 @@ function extractLeetCodeContext() {
     '.elfjS',
   ])
 
-  const code = textFromSelectors([
-    '.monaco-editor .view-lines',
-    '.CodeMirror-code',
-    '[contenteditable="true"]',
-  ])
+  const code = editorCode()
 
   return {
     title,

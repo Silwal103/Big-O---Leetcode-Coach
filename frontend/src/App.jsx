@@ -1,32 +1,31 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import './App.css'
 import { getActiveTabContext, isExtension } from './extension'
+import { Composer } from './components/Composer'
+import { Header } from './components/Header'
+import { HintLadder } from './components/HintLadder'
+import { Message } from './components/Message'
+import { EmptyState, ThinkingRow } from './components/States'
+import { ProblemContext } from './components/ProblemContext'
+import { canRetry, isTypingTarget } from './lib/keys'
+import { mascotState } from './lib/mascot'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
-
-/**
- * Phase 1 — Minimal Chat UI
- *
- * A simple chat interface that sends messages to the FastAPI backend
- * and displays the structured response from the LangChain → Gemini chain.
- *
- * No problem panel, code editor, or hint buttons yet — those come in later phases.
- */
 
 const API_BASE = 'http://localhost:8000'
 
-const TUTOR_MODES = [
-  { id: 'hint', label: 'Give me a hint', message: 'Give me a hint.' },
-  { id: 'stronger_hint', label: 'Stronger hint', message: 'Give me a stronger hint.' },
-  { id: 'explain_concept', label: 'Explain concept', message: 'Explain the key DSA concept for this problem.' },
-  { id: 'review_approach', label: 'Review my approach', message: 'Review my current approach and code.' },
-  { id: 'show_solution', label: 'Show solution', message: 'Show me the complete solution.' },
-]
+// The message each tutor mode sends; unchanged from the original mode buttons.
+const MODE_MESSAGES = {
+  hint: 'Give me a hint.',
+  stronger_hint: 'Give me a stronger hint.',
+  explain_concept: 'Explain the key DSA concept for this problem.',
+  review_approach: 'Review my current approach and code.',
+  show_solution: 'Show me the complete solution.',
+}
 
 /**
  * Render the tutor interface and coordinate its persisted session state.
  *
- * @returns {JSX.Element} The LeetCode Coach application.
+ * @returns {JSX.Element} The Big-O application.
  */
 function App() {
   const shouldReduceMotion = useReducedMotion()
@@ -41,6 +40,8 @@ function App() {
   const [context, setContext] = useState(() => sessionFor(initialStore).context)
   const [contextStatus, setContextStatus] = useState(isExtension ? 'Ready to import' : 'Web app mode')
   const [hintLevel, setHintLevel] = useState(() => sessionFor(initialStore).hintLevel)
+  // True for a moment after a reply lands, so the mascot can react to it.
+  const [recentReply, setRecentReply] = useState(false)
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -69,7 +70,7 @@ function App() {
         setHintLevel(next.hintLevel)
         setContext({ ...next.context, ...found })
       }
-      setContextStatus(imported.title ? `Imported: ${imported.title}` : 'No LeetCode problem found')
+      setContextStatus(imported.title ? 'Synced from tab' : 'No LeetCode problem found')
     } catch (err) {
       setContextStatus('Import failed')
       setError(err.message || 'Could not read the current tab.')
@@ -132,9 +133,10 @@ function App() {
    *
    * @param {string} requestedMode - The tutor assistance mode to request.
    * @param {string} requestedMessage - The message to send to the tutor.
+   * @param {boolean} [retry] - Resend the trailing unanswered user message instead of adding a new one.
    * @returns {Promise<void>}
    */
-  const sendMessage = async (requestedMode = 'chat', requestedMessage = input) => {
+  const sendMessage = async (requestedMode = 'chat', requestedMessage = input, retry = false) => {
     const trimmed = requestedMessage.trim()
     if (!trimmed || loading) return
 
@@ -142,9 +144,12 @@ function App() {
     setError(null)
 
     // Add user message to chat
-    const userMessage = { role: 'user', content: trimmed }
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
+    // On retry the failed message is already shown; don't add it twice or repeat it in history.
+    const priorMessages = retry ? messages.slice(0, -1) : messages
+    if (!retry) {
+      setMessages(prev => [...prev, { role: 'user', content: trimmed, mode: requestedMode }])
+      setInput('')
+    }
     setLoading(true)
     const requestedHintLevel = requestedMode === 'show_solution'
       ? 5
@@ -166,7 +171,7 @@ function App() {
           language: context.language,
           mode: requestedMode,
           hint_level: requestedHintLevel,
-          history: messages.slice(-10).map(message => ({
+          history: priorMessages.slice(-10).map(message => ({
             role: message.role,
             content: message.content,
           })),
@@ -186,8 +191,14 @@ function App() {
         content: data.response,
         hintLevel: data.hint_level,
         revealsSolution: data.reveals_solution,
+        correctness: data.correctness,
+        timeComplexity: data.time_complexity,
+        spaceComplexity: data.space_complexity,
+        issues: data.issues,
+        nextHint: data.next_hint,
       }
       setHintLevel(aiMessage.hintLevel)
+      setRecentReply(true)
       setMessages(prev => [...prev, aiMessage])
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
@@ -205,165 +216,76 @@ function App() {
    * Submit the predefined message associated with a tutor mode.
    *
    * @param {string} mode - The tutor assistance mode to request.
-   * @param {string} message - The predefined message for the selected mode.
    */
-  const requestTutorMode = (mode, message) => {
-    sendMessage(mode, message)
+  const requestTutorMode = (mode) => {
+    sendMessage(mode, MODE_MESSAGES[mode])
   }
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
-    }
+  useEffect(() => {
+    if (!recentReply) return
+    const timer = window.setTimeout(() => setRecentReply(false), 1500)
+    return () => window.clearTimeout(timer)
+  }, [recentReply])
+
+  const lastMessage = messages.at(-1)
+  const mascot = mascotState({ loading, mode: lastMessage?.mode, error, lastMessage, recent: recentReply })
+
+  /** Fill the composer with a starter question without sending it. */
+  const suggest = (text) => {
+    setInput(text)
+    inputRef.current?.focus()
   }
+
+  /** Resend the last unanswered user message with its original mode. */
+  const retryLastMessage = () => {
+    const last = messages.at(-1)
+    sendMessage(last.mode || 'chat', last.content, true)
+  }
+
+  // "/" focuses the composer from anywhere except while typing in a field.
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target)) return
+      event.preventDefault()
+      inputRef.current?.focus()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return (
     <>
-      {/* Header */}
-      <header className="app-header">
-        <span className="app-header__icon">🧠</span>
-        <h1 className="app-header__title">LeetCode Coach</h1>
-        {isExtension && (
-          <button className="context-refresh-btn" onClick={refreshContext} disabled={loading}>
-            Refresh tab
-          </button>
-        )}
-        <button className="context-refresh-btn" onClick={resetSession} disabled={loading}>
-          New problem
-        </button>
-        <button className="context-refresh-btn" onClick={clearConversation} disabled={loading || messages.length === 0}>
-          Clear chat
-        </button>
-        <span className="app-header__badge">{contextStatus}</span>
-        <motion.span
-          key={hintLevel}
-          className="app-header__badge"
-          initial={shouldReduceMotion ? false : { opacity: 0.5, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={motionTransition}
-        >
-          Level {hintLevel}/5
-        </motion.span>
-      </header>
+      <Header
+        title={context.title}
+        status={contextStatus}
+        mascotState={mascot}
+        canRefresh={isExtension}
+        busy={loading}
+        hasMessages={messages.length > 0}
+        onRefresh={refreshContext}
+        onNewProblem={resetSession}
+        onClearChat={clearConversation}
+      />
 
       {/* Main Chat Area */}
       <main className="app-main">
-        <motion.section className="context-panel" layout transition={motionTransition}>
-          <label htmlFor="problem-title">Current problem</label>
-          <input
-            id="problem-title"
-            value={context.title}
-            onChange={event => setContext({ ...context, title: event.target.value })}
-            placeholder="Import a LeetCode problem or enter a title"
-          />
-          <label htmlFor="problem-description">Problem statement</label>
-          <textarea
-            id="problem-description"
-            value={context.description}
-            onChange={event => setContext({ ...context, description: event.target.value })}
-            placeholder="Problem statement (editable)"
-            rows={3}
-          />
-          <label htmlFor="problem-constraints">Constraints</label>
-          <textarea
-            id="problem-constraints"
-            value={context.constraints}
-            onChange={event => setContext({ ...context, constraints: event.target.value })}
-            placeholder="Constraints (optional)"
-            rows={2}
-          />
-          <label htmlFor="problem-examples">Examples</label>
-          <textarea
-            id="problem-examples"
-            value={context.examples}
-            onChange={event => setContext({ ...context, examples: event.target.value })}
-            placeholder="Examples (optional)"
-            rows={2}
-          />
-          <label htmlFor="code-language">Code language</label>
-          <select
-            id="code-language"
-            value={context.language}
-            onChange={event => setContext({ ...context, language: event.target.value })}
-          >
-            <option value="">Select a language</option>
-            <option value="python">Python</option>
-            <option value="java">Java</option>
-            <option value="cpp">C++</option>
-            <option value="javascript">JavaScript</option>
-          </select>
-          <label htmlFor="current-code">Current code</label>
-          <textarea
-            id="current-code"
-            value={context.code}
-            onChange={event => setContext({ ...context, code: event.target.value })}
-            placeholder="Your current code (editable)"
-            rows={4}
-          />
-        </motion.section>
-        <div className="chat-area">
-          {messages.length === 0 && !loading && (
-            <div className="chat-area__empty">
-              <span className="chat-area__empty-icon">💬</span>
-              <p className="chat-area__empty-title">Ask your DSA tutor anything</p>
-              <p className="chat-area__empty-subtitle">
-                Try asking about a problem, requesting a hint, or discussing a data structure concept.
-              </p>
-            </div>
-          )}
+        {/* Keyed by session so a manual open/closed choice doesn't carry over to another problem. */}
+        <ProblemContext key={activeKey} context={context} onChange={setContext} />
+        <div className="chat-area" role="log" aria-live="polite" aria-label="Conversation">
+          {messages.length === 0 && !loading && <EmptyState onSuggest={suggest} />}
 
           {messages.map((msg, idx) => (
             <motion.div
               key={idx}
-              className={`message message--${msg.role}`}
               initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={motionTransition}
             >
-              <span className="message__label">
-                {msg.role === 'user' ? 'You' : 'Tutor'}
-              </span>
-              <div className="message__bubble">{msg.content}</div>
-              {msg.role === 'ai' && (
-                <div className="message__meta">
-                  {msg.hintLevel > 0 && (
-                    <span className="message__tag message__tag--hint">
-                      Hint Level {msg.hintLevel}/5
-                    </span>
-                  )}
-                  {msg.revealsSolution && (
-                    <span className="message__tag message__tag--solution">
-                      Solution Revealed
-                    </span>
-                  )}
-                </div>
-              )}
+              <Message message={msg} />
             </motion.div>
           ))}
 
-          {loading && (
-            <motion.div
-              className="message message--ai"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={motionTransition}
-            >
-              <span className="message__label">Tutor</span>
-              <div className="message__bubble">
-                <div className="loading-dots">
-                  {[0, 1, 2].map(index => (
-                    <motion.span
-                      key={index}
-                      className="loading-dots__dot"
-                      animate={shouldReduceMotion ? undefined : { opacity: [0.35, 1, 0.35], y: [0, -2, 0] }}
-                      transition={shouldReduceMotion ? undefined : { duration: 1, repeat: Infinity, delay: index * 0.15 }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
+          {loading && <ThinkingRow mode={lastMessage?.mode} />}
 
           {error && (
             <motion.div
@@ -373,51 +295,27 @@ function App() {
               animate={{ opacity: 1, y: 0 }}
               transition={motionTransition}
             >
-              <span className="error-banner__icon">⚠️</span>
-              {error}
+              <span className="error-banner__text">{error}</span>
+              {canRetry(messages) && !loading && (
+                <button type="button" className="error-banner__retry" onClick={retryLastMessage}>
+                  Retry
+                </button>
+              )}
             </motion.div>
           )}
 
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="mode-controls" aria-label="Tutor assistance modes">
-          {TUTOR_MODES.map(mode => (
-            <motion.button
-              key={mode.id}
-              className={`mode-controls__btn mode-controls__btn--${mode.id}`}
-              onClick={() => requestTutorMode(mode.id, mode.message)}
-              disabled={loading}
-              whileHover={shouldReduceMotion ? undefined : { y: -1 }}
-              whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-            >
-              {mode.label}
-            </motion.button>
-          ))}
-        </div>
-        <div className="input-area">
-          <textarea
-            ref={inputRef}
-            className="input-area__field"
-            placeholder="Ask the tutor a question..."
+        <div className="dock">
+          <HintLadder level={hintLevel} busy={loading} onRequest={requestTutorMode} />
+          <Composer
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={setInput}
+            onSubmit={() => sendMessage()}
             disabled={loading}
-            rows={1}
-            id="tutor-input"
+            inputRef={inputRef}
           />
-          <motion.button
-            className="input-area__btn"
-            onClick={() => sendMessage()}
-            disabled={loading || !input.trim()}
-            id="ask-tutor-btn"
-            whileHover={shouldReduceMotion ? undefined : { y: -1 }}
-            whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-          >
-            {loading ? 'Thinking…' : 'Ask Tutor'}
-          </motion.button>
         </div>
       </main>
     </>

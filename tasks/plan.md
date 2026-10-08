@@ -1,64 +1,81 @@
-# Implementation Plan: Per-Problem Session Persistence
+# Implementation Plan: Big-O UI/UX Redesign
 
-Spec: [SPEC.md](../SPEC.md). Task checklist: [todo.md](todo.md).
+Spec: [SPEC.md](../SPEC.md) · Task checklist: [todo.md](todo.md) · Branch: `feature/big-o-redesign` (from `main` @ `3eddf13`)
+Previous plan: [archive/per-problem-sessions-plan.md](archive/per-problem-sessions-plan.md)
 
 ## Overview
 
-Replace the single `leetcode-coach-session` slot in `localStorage` with a store that holds one session per problem, keyed by the LeetCode slug. Switching problems saves the current session and restores the next one. Everything is frontend-only; the backend does not change.
+Restyle and restructure the side panel into Big-O, a calm developer tool, **without changing what it does**. Work is sliced by visible area of the panel: header → problem context → messages → composer → hint path → mascot → icons. Each slice pulls its markup out of `App.jsx` into a component and restyles it in the same task, so the panel works after every commit. `App.jsx` keeps every piece of state and every handler.
 
 ## Architecture Decisions
 
-- **One pure module, `frontend/src/sessions.js`,** holds key derivation, load/save, migration and upsert. It has no React or DOM code, and `storage` is passed in so `node:test` can test it with a stub. This avoids adding a test-framework dependency.
-- **`App.jsx` keeps its three state hooks** (`messages`, `context`, `hintLevel`) plus a new `activeKey`. One effect writes them back into the store. This is the smallest change from today's code, which already uses a single persisting effect.
-- **Sessions switch only on import** (panel open and "Refresh tab"). Following tab changes automatically is out of scope (SPEC Open Question 1).
-- **The open questions are settled as the spec proposed:** no automatic tab tracking, no session cap, no delete-all button, and the Ask-button bug gets fixed.
+- **Extract components slice by slice, not all at once.** There are no component tests, so moving all ~440 lines in one go is the riskiest possible step. Each task moves one area and is checked by hand straight away.
+- **Components only display data.** They get state and handlers through props. `fetch`, `localStorage`, `sessions.js` and `extension.js` stay referenced only from `App.jsx`.
+- **The logic lives in pure `src/lib/` modules** (`richText.js`, `ladder.js`) tested with `node:test`. That is the only automated coverage for new behaviour, so anything with branching logic goes there.
+- **Tokens first.** `tokens.css` lands in Task 1 and every later style uses it, so no colour or spacing values are written out by hand.
+- **Header without a menu.** Three icon buttons fit at 360 px; an overflow menu would need its own focus and keyboard handling. (SPEC updated.)
+- **Retry** calls `sendMessage(mode, message, retry = true)`: the failed message stays shown once and is left out of the history sent. User messages store their `mode`.
+- **Toolbar icons** come from the same SVG as `Mascot.jsx`, rendered by `scripts/icons.sh` with `rsvg-convert`, a local tool and not an npm dependency.
 
 ## Dependency Graph
 
 ```
-sessions.js (sessionKeyFor, loadStore, saveStore, upsertSession)
-    │
-    ├── App.jsx: initial load + persist effect + legacy migration     (Task 2)
-    │       │
-    │       └── App.jsx: switch session on import                     (Task 3)
-    │               │
-    │               └── App.jsx: Clear chat / New problem / quota UI  (Task 4)
-    │
-Ask-button bug fix (independent)                                     (Task 1)
+T1 tokens.css + fonts + rename + cleanup
+ ├── T2 Header (+ IconButton, static Mascot) ──────────────┐
+ ├── T3 ProblemContext (collapsible)                       │
+ ├── T4 lib/richText + Message (code blocks, aria-live)    │
+ │     └── T5 lib/ladder.complexityTone + ReviewDetails    │
+ ├── T6 Composer + Retry + "/" shortcut                    │
+ └── T7 lib/ladder steps + HintLadder + solution dialog ◄──┘ (uses T5's ladder.js)
+       └── T8 Mascot states + empty/thinking states (needs T2 Mascot, T4/T6/T7 state hooks)
+             └── T9 Toolbar icons from mascot SVG
 ```
+
+All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in parallel safely.
 
 ## Task List
 
-### Phase 1: Foundation
-- [x] Task 1: Fix the Ask button passing the click event as the mode (XS)
-- [x] Task 2: Per-problem store, with the current session migrated and restored on reopen (M)
+### Phase 1: Shell
+- [x] Task 1: Design tokens, system fonts, rename to Big-O, delete template leftovers (S)
+- [x] Task 2: Header: mascot mark, wordmark, problem chip, icon actions (M)
+- [x] Task 3: Collapsible problem context (S)
 
-### Checkpoint A
-- [ ] Unit tests, lint and build pass; reopening the panel restores the session; the legacy session is migrated
+### Checkpoint A: Shell
+- [x] At 360 px on a problem page, the chat area is visible without scrolling. The full regression pass is clean.
 
-### Phase 2: Core behavior
-- [x] Task 3: Importing a different problem switches sessions (S)
-- [x] Task 4: Clear chat and New problem are scoped per session; quota errors are surfaced (S)
+### Phase 2: Conversation
+- [x] Task 4: Document-style messages with safe code-block rendering (M)
+- [x] Task 5: Structured review details with complexity badges (M)
+- [x] Task 6: Composer, Retry and the `/` shortcut (S)
 
-### Checkpoint B: Complete
-- [ ] All SPEC success criteria are met; user stories 1–4 pass manually in the unpacked extension
+### Checkpoint B: Conversation
+- [x] Code renders and copies, reviews show badges, Retry works, nothing is injected as HTML
 
-Full task detail is in [todo.md](todo.md).
+### Phase 3: Coaching
+- [x] Task 7: Hint path, Next hint, secondary actions, solution confirmation dialog, Alt shortcuts (M)
+
+### Checkpoint C: Coaching
+- [x] Keyboard-only run of the whole hint path through to the solution dialog
+
+### Phase 4: Identity
+- [x] Task 8: Mascot states, empty and thinking states, microcopy (M)
+- [x] Task 9: Toolbar and favicon icons from the mascot SVG (S)
+
+### Checkpoint D: Complete
+- [x] Every SPEC success criterion is met
 
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| The legacy session is lost during migration | High | Delete the legacy key only after the new store has saved successfully. Unit-test the migration. |
-| A race between the persist effect and the session switch writes the old chat under the new key | High | Do the switch in a single function that saves the current session and then sets all state from the target session. Check it manually with two problems in a row. |
-| LeetCode URL variants (`/description/`, `/submissions/`, query strings, `/problems/x` without a trailing slash) give different keys | Med | The slug regex stops at `/?#`. Unit-test every variant. |
-| A full `localStorage` makes `setItem` throw inside an effect | Med | `saveStore` returns `false` and never throws. `App` shows a banner. |
-| Web-app mode has no URL | Low | Fall back to the title key, or to `untitled`. Check manually with `npm run dev`. |
-
-## Parallelization
-
-Task 1 is independent and can land at any time. Tasks 2 → 3 → 4 run in order because they all edit the same state wiring in `App.jsx`.
+| A behaviour regresses while markup moves out of `App.jsx` | High | One area per task. Handlers are passed in, never rewritten. The regression pass runs at every checkpoint. |
+| Model output rendered unsafely | High | `richText.js` returns plain tokens and React renders the text. `dangerouslySetInnerHTML` is banned. A unit test feeds `<script>` input through it. |
+| Layout doesn't fit at 360 px | Med | Each task's manual check runs at 360 px and at 500 px. |
+| `backdrop-filter` or animation costs performance in the side panel | Med | Glass only on two sticky bars. Animate only `opacity` and `transform`. Reduced-motion check at each checkpoint. |
+| Clipboard copy fails in the side panel | Low | `navigator.clipboard.writeText` on a user click, which works on extension pages. On failure show "Copy failed", never throw. |
+| Alt-key shortcuts clash with the OS or the browser (macOS Alt types characters) | Med | Match on `event.code` (`KeyH`), not `event.key`. Ignore them while the composer has focus. Test on macOS. |
+| Complexity strings vary ("O(N)", "O(n * m)", "linear") | Low | Normalize case and whitespace. Anything unrecognized gets a neutral tone. Unit-tested. |
 
 ## Open Questions
 
-None blocking. SPEC open questions 1–3 are resolved as proposed (out of scope for v1); reopen them if you disagree.
+None blocking. SPEC open questions 1–2 are taken as proposed (thinking lines per mode, neutral rule for chat replies). Question 3 is resolved: the branch is cut from `main` after PR #3 merged.

@@ -1,0 +1,67 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+
+// extension.js reads globalThis.chrome at import time, so install the fake first.
+const calls = []
+let failuresLeft = 0
+let failureMessage = ''
+let activeTab = { id: 7, url: 'https://leetcode.com/problems/two-sum/' }
+globalThis.chrome = {
+  runtime: { id: 'test-extension', lastError: undefined },
+  tabs: {
+    query: async () => [activeTab],
+    sendMessage(tabId, message, callback) {
+      calls.push(['sendMessage', tabId])
+      if (failuresLeft > 0) {
+        failuresLeft -= 1
+        chrome.runtime.lastError = { message: failureMessage }
+        callback(undefined)
+        chrome.runtime.lastError = undefined
+        return
+      }
+      callback({ title: 'Two Sum', url: 'https://leetcode.com/problems/two-sum/' })
+    },
+  },
+  scripting: {
+    executeScript: async ({ target, files }) => {
+      calls.push(['executeScript', target.tabId, files[0]])
+    },
+  },
+}
+const { getActiveTabContext } = await import('./extension.js')
+
+test('injects the content script and retries when the tab has no live receiver', async () => {
+  calls.length = 0
+  failuresLeft = 1
+  failureMessage = 'Could not establish connection. Receiving end does not exist.'
+
+  const context = await getActiveTabContext()
+  assert.equal(context.title, 'Two Sum')
+  assert.deepEqual(calls, [
+    ['sendMessage', 7],
+    ['executeScript', 7, 'content-script.js'],
+    ['sendMessage', 7],
+  ])
+})
+
+test('other messaging errors are not retried', async () => {
+  calls.length = 0
+  failuresLeft = 1
+  failureMessage = 'The tab was closed.'
+
+  await assert.rejects(getActiveTabContext(), /The tab was closed/)
+  assert.deepEqual(calls, [['sendMessage', 7]])
+})
+
+test('only real leetcode.com tabs are messaged or injected into', async () => {
+  calls.length = 0
+  failuresLeft = 0
+  activeTab = { id: 9, url: 'https://evil.example/?next=leetcode.com' }
+  const context = await getActiveTabContext()
+  assert.equal(context.title, '')
+  assert.equal(context.url, 'https://evil.example/?next=leetcode.com')
+  assert.deepEqual(calls, [])
+
+  activeTab = { id: 7, url: 'https://leetcode.com/problems/two-sum/' }
+  assert.equal((await getActiveTabContext()).title, 'Two Sum')
+})
