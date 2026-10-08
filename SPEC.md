@@ -1,29 +1,45 @@
-# Spec: Per-Problem Session Persistence
+# Spec: Big-O UI/UX Redesign
+
+> Replaces the per-problem sessions spec, which is complete (branch `feature/per-problem-sessions`) and stays in git history.
 
 ## Objective
 
-Today the side panel stores one session (`messages`, `context`, `hintLevel`) in `localStorage` under `leetcode-coach-session`. Importing a different problem mixes it with the previous problem's chat and hint level. "New problem" wipes everything.
+Redesign the side-panel extension, renamed **Big-O**, from a generic chat form into a polished developer tool. It is a calm, trustworthy coding coach that helps LeetCode users get unstuck **without immediately giving away the solution**.
 
-**Goal:** each LeetCode problem gets its own saved session. When a user goes back to a problem, its chat history, hint level and edited context come back.
+**User:** someone solving a LeetCode problem with Big-O open next to it in Chrome's side panel (360–500 px wide), who wants the smallest useful next step.
 
-**User:** someone working through LeetCode problems with the side panel open, often switching between problems over several days.
+**Personality:** intelligent, calm, encouraging, a little witty, developer-oriented, premium. Not a children's learning app, not a generic AI chatbot.
+
+**Guiding principle:** help the user think rather than solving the problem for them. Show the guided path, put the next small step first, and put the solution behind a deliberate choice.
 
 ### User stories
-1. I import Two Sum, get two hints, then import Valid Parentheses. I see an empty chat at level 0. When I go back to Two Sum, my two hints and level 2 are restored.
-2. I close the side panel or restart the browser. When I reopen it on a problem I've worked on, that problem's session is restored.
-3. "Clear chat" clears only the current problem's chat and hint level. Other problems are not touched.
-4. If I used the extension before this change, my existing single session is kept and attached to its problem.
+1. On a LeetCode problem, I see the problem name, Big-O and the conversation without scrolling. The problem details stay out of the way until I want to edit them.
+2. I click "Next hint" repeatedly and watch a 5-step path fill in: Nudge → Hint → Approach → Pseudocode → Solution. Revealing the solution asks me to confirm first.
+3. When I ask Big-O to review my code, I get a structured result: whether it's correct, time and space complexity badges coloured by how costly they are, a list of issues, and an optional hidden "next nudge".
+4. Code in replies is shown in monospace with a copy button.
+5. While Big-O works, its mascot shows that it's thinking. On an error it looks confused and offers **Retry**.
+6. I can do everything with the keyboard, focus is always visible, and with reduced motion turned on nothing animates.
 
-### Assumptions (correct these before planning)
-1. **Session key:** the problem slug from the URL (`leetcode.com/problems/<slug>/...`). With no URL (web-app mode, or a title typed in by hand), the key is a slugified title. With no title either, the key is a single `untitled` scratch session.
-2. **When sessions switch:** only when the context import runs, which is on panel open and on "Refresh tab". The panel does not watch tab changes in the background (see Open Questions).
-3. **Storage:** keep `localStorage`, which is already in use, works in both extension and web-app modes, and lasts across panel closes and browser restarts. `chrome.storage` is not used.
-4. **No backend changes.** The `/api/tutor` and `/api/reset` contracts stay the same, and the server stays stateless.
-5. **No session-list UI.** Sessions are only reachable by opening the problem.
+### Non-goals
+- No backend, API contract, prompt or AI logic changes.
+- No changes to session persistence (`sessions.js`) or tab import (`extension.js`, `content-script.js`) behavior.
+- No light theme, no 3D, no Lottie, no Spline, no marketing page, no gamification such as streaks, points or confetti.
+
+## Decisions (approved)
+
+| Topic | Decision |
+|---|---|
+| Accent | Mint/teal `#3CCFB0`, used only for progress and the primary action. Amber means caution or solution, red means error, green means success. |
+| Solution gate | A confirmation dialog: a native `<dialog>` with Cancel focused by default. |
+| Retry on error | Added. It removes the trailing user message that got no reply, then resends it with its original mode, so the message never appears twice. |
+| Toolbar icons | PNGs at 16, 32, 48 and 128 px, rendered from the mascot SVG with `rsvg-convert` (`brew install librsvg`, a local dev tool, not a project dependency). The PNGs are committed. |
+| Theme | Dark only. |
+| Mascot | Inline SVG animated with CSS + `motion`. No new dependency. |
+| Fonts | The system font stack and `ui-monospace`. The Google Fonts request is removed. |
 
 ## Tech Stack
 
-Unchanged: React 19 + Vite 8 + motion (frontend, MV3 side panel) and FastAPI + LangChain + Gemini (backend). **No new dependencies.** Frontend unit tests use Node's built-in `node:test` runner.
+Unchanged: React 19, Vite 8, `motion` 13 (already installed), plain CSS, Chrome MV3 side panel. **No new npm dependencies.** Backend (FastAPI + LangChain + Gemini) untouched.
 
 ## Commands
 
@@ -31,100 +47,138 @@ Unchanged: React 19 + Vite 8 + motion (frontend, MV3 side panel) and FastAPI + L
 Frontend dev:    cd frontend && npm run dev
 Frontend build:  cd frontend && npm run build
 Frontend lint:   cd frontend && npm run lint
-Frontend tests:  cd frontend && node --test src/sessions.test.js
-Backend dev:     cd backend && uvicorn main:app --reload --port 8000
+Frontend tests:  cd frontend && node --test 'src/**/*.test.js'
 Backend tests:   cd backend && .venv/bin/python -m unittest discover tests
+Icons:           cd frontend && sh scripts/icons.sh   (needs rsvg-convert)
 ```
 
 ## Project Structure
 
 ```
-frontend/src/sessions.js       → NEW: pure session-store helpers (key derivation, load/save, migration)
-frontend/src/sessions.test.js  → NEW: node:test unit tests for sessions.js
-frontend/src/App.jsx           → switch active session on import; Clear chat / New problem semantics
-frontend/src/extension.js      → unchanged (already returns `url`)
-backend/                       → unchanged
+frontend/src/App.jsx               → keeps ALL state and handlers; renders the components below
+frontend/src/components/
+  Header.jsx                       → mascot, wordmark, problem chip, icon actions (Refresh, New problem, Clear chat)
+  ProblemContext.jsx               → collapsible editor for the 6 existing context fields
+  HintLadder.jsx                   → 5-step path, Next hint, secondary actions, solution dialog
+  Message.jsx                      → user/tutor message, ReviewDetails, CodeBlock, copy
+  Composer.jsx                     → auto-growing input, send button, key hints
+  Mascot.jsx                       → SVG "O" with states: idle|thinking|hint|success|error|analyzing
+  IconButton.jsx, Kbd.jsx          → shared primitives (tooltip, aria-label, focus ring)
+frontend/src/lib/
+  richText.js (+ .test.js)         → splits text into text / inline code / fenced code blocks (no HTML)
+  ladder.js (+ .test.js)           → step metadata; level → step; next mode for a level; complexity → tone
+frontend/src/styles/tokens.css     → design tokens (color, type, space, radius, motion, z)
+frontend/src/index.css             → base + component styles using tokens (BEM kept)
+frontend/scripts/icons.sh          → renders mascot SVG → public/icons/icon-{16,32,48,128}.png
+frontend/public/manifest.json      → name "Big-O", icons
+DELETE: src/App.css, src/assets/{hero.png,react.svg,vite.svg}, public/icons.svg, empty public/favicon.svg (replaced)
 ```
 
-## Design
+## Design System
 
-**Storage shape** (one `localStorage` key, `leetcode-coach-sessions`):
-
-```js
-{
-  version: 1,
-  activeKey: 'two-sum',
-  sessions: {
-    'two-sum': { context: {...}, messages: [...], hintLevel: 2, updatedAt: 1760000000000 },
-  },
+**Tokens (`tokens.css`):**
+```css
+:root {
+  --bg: #0B0C0E; --surface: #111214; --raised: #17181B;
+  --border: rgb(255 255 255 / 0.07); --border-strong: rgb(255 255 255 / 0.12);
+  --text: #EDEEF0; --text-2: #A0A3A9; --text-3: #6B6E75;
+  --accent: #3CCFB0; --accent-soft: rgb(60 207 176 / 0.12);
+  --warn: #E8A33D; --danger: #EF5B5B; --ok: #4CC38A;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
+  --fs-xs: 11px; --fs-sm: 12px; --fs-md: 13px; --fs-lg: 15px; --fs-xl: 17px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-8: 32px;
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px;
+  --dur-fast: 120ms; --dur: 180ms; --dur-slow: 240ms; --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
 }
 ```
 
-**`sessions.js` API** (pure functions wherever possible, so they can be tested without a DOM):
+**Rules:**
+- Hairline 1px borders.
+- Shadows only on the dialog and popovers.
+- `backdrop-filter` glass only on the sticky header and the composer.
+- Gradients at most as a 1px highlight. No gradient text.
+- No emoji in the UI chrome.
+- Only one primary (accent) button visible at a time.
 
-```js
-export function sessionKeyFor(context)          // url slug → slugified title → 'untitled'
-export function loadStore(storage)              // parse + migrate legacy key; never throws
-export function saveStore(storage, store)       // returns false on quota/serialization error, never throws
-export function upsertSession(store, key, data) // returns a new store with activeKey = key
-```
+**Complexity tones:** `O(1)`, `O(log n)` → ok; `O(n)` → accent; `O(n log n)` → warn; `O(n^2)` or worse, or anything unrecognized → danger or neutral. Matched by a small regex in `ladder.js`.
 
-`storage` is passed in (`localStorage` in the app, a `Map`-backed stub in tests).
+**Hint path (backend `hint_level` scale, unchanged):**
 
-**Behavior**
-| Action | Result |
-|---|---|
-| Import gives a key different from `activeKey` | Save the current session, then load (or create) the session for the new key. Imported fields are merged into that session's context, the way they are today. |
-| Import gives the same key | Merge the imported context only. Chat and level are left as they are. |
-| Edit the title by hand (no URL) | Stays in the current session. The key is only recalculated on import. |
-| Clear chat | Empties `messages` and resets `hintLevel` to 0 for the active session only. |
-| New problem | Switches to an empty `untitled` session. Saved sessions are not deleted. Still calls `/api/reset`. |
-| Legacy `leetcode-coach-session` present | On first load, migrate it into the new store under `sessionKeyFor(legacy.context)`, then remove the legacy key. |
-| Corrupt JSON in storage | Start with an empty store and don't crash. |
-| `setItem` throws (quota exceeded) | Show a non-blocking error banner. The in-memory session keeps working. |
+| Level | Step | Sent mode |
+|---|---|---|
+| 1 | Nudge | `hint` |
+| 2 | Hint | `hint` |
+| 3 | Approach | `stronger_hint` |
+| 4 | Pseudocode | `stronger_hint` |
+| 5 | Solution | `show_solution` (after confirmation) |
+
+"Next hint" uses the existing `sendMessage(mode, message)`. The existing level progression in `App.jsx` (`min(level + 1, 4)`, solution = 5) stays as it is. Complexity is covered by "Review my code" (`review_approach`).
+
+**Mascot:** a 24×24 viewBox ring with two eye marks. States are driven by `App` state: `loading` → thinking (or analyzing when the mode is `review_approach`); `error` → error; the last reply was a hint → hint, briefly; a review reported correct → success, briefly; otherwise idle. With reduced motion, each state is a static pose.
+
+**Microcopy (restrained wit), examples:**
+- Empty state: "Stuck? Let's find the smallest next step."
+- Thinking: "Checking edge cases…" / "Reducing the search space…"
+- Solution dialog: "This skips the good part. Reveal the full solution?"
 
 ## Code Style
 
-Match the existing code: ES modules, no semicolons, single quotes, 2-space indentation, JSDoc on exported functions, functional React with hooks, and no new abstractions in `App.jsx` beyond calls into `sessions.js`.
+Match the existing code:
+- ES modules, no semicolons, single quotes, 2-space indentation.
+- Function components with hooks, and JSDoc on exported functions.
+- BEM class names in CSS, and every value comes from a token.
+- Components get state and handlers through props and never call `fetch` or `localStorage` themselves.
 
-```js
-/**
- * Derive the storage key for a problem context.
- *
- * @param {{ url?: string, title?: string }} context
- * @returns {string}
- */
-export function sessionKeyFor({ url = '', title = '' }) {
-  const slug = url.match(/leetcode\.com\/problems\/([^/?#]+)/)?.[1]
-  if (slug) return slug
-  return title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'untitled'
+```jsx
+/** Icon-only button with accessible name and tooltip. */
+export function IconButton({ label, shortcut, onClick, disabled, children }) {
+  return (
+    <button className="icon-btn" aria-label={label} title={shortcut ? `${label} (${shortcut})` : label}
+      onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  )
 }
 ```
 
 ## Testing Strategy
 
-- **Unit (`node --test`)**: `sessions.test.js` covers key derivation (URL with `/description/` suffix, query strings, title fallback, empty), legacy migration, corrupt JSON, quota failure in `saveStore`, and an `upsertSession` round-trip.
-- **Backend**: the existing `backend/tests/test_tutor_contract.py` must still pass with no changes.
-- **Manual (extension loaded unpacked from `frontend/dist`)**: run through user stories 1–4 on real leetcode.com problems.
-- No React component test harness is added. `App.jsx` wiring is checked manually.
+- **Unit (`node --test 'src/**/*.test.js'`):**
+  - `richText.test.js`: plain text, inline code, fenced blocks with and without a language, unclosed fences, and HTML-looking input staying text.
+  - `ladder.test.js`: level → step, the next mode for each level, complexity → tone mapping.
+  - The existing `sessions.test.js` must still pass.
+- **No component test harness.** It is not added, and adding one counts as a new dependency, which needs your approval first.
+- **Manual (unpacked extension), at each checkpoint:**
+  - Panel widths of 360 and 500 px.
+  - A keyboard-only pass: Tab order, visible focus, every shortcut, Esc, the dialog trapping focus.
+  - With reduced motion turned on in the OS.
+  - With a screen reader (VoiceOver), confirm new replies are announced.
+  - Regression pass: import, switch session, New problem, Clear chat, every mode, the error banner.
 
 ## Boundaries
 
-- **Always:** keep `sessions.js` free of React and DOM access; wrap every storage read and write in try/catch; run `npm run lint`, `npm run build` and `node --test src/sessions.test.js` before committing.
-- **Ask first:** adding any dependency (including vitest); changing the `/api/tutor` or `/api/reset` contract; moving to `chrome.storage`; adding manifest permissions.
-- **Never:** silently drop the legacy session; store the API key or anything server-side in the session store; break web-app (non-extension) mode.
+- **Always:** keep every existing handler and state in `App.jsx` with unchanged behavior; use tokens instead of hard-coded values; give each icon button an `aria-label`; respect `useReducedMotion`; run lint, build and `node --test 'src/**/*.test.js'` before each commit.
+- **Ask first:** any new npm dependency; any backend, prompt or API change; changing `sessions.js`, `extension.js` or `content-script.js`; adding manifest permissions.
+- **Never:** render model output as HTML (`dangerouslySetInnerHTML`); load remote fonts or scripts; remove an existing feature or mode; add 3D or Lottie runtimes.
 
 ## Success Criteria
 
-- [ ] User stories 1–4 pass manually in the unpacked extension.
-- [ ] Web-app mode (`npm run dev`, no extension) still works, and sessions are keyed by title.
-- [ ] `node --test src/sessions.test.js` passes with the cases listed under Testing Strategy.
-- [ ] `npm run lint` and `npm run build` are clean, and the backend unittest suite passes without changes.
-- [ ] Corrupt or full storage never crashes or blanks the panel.
+- [ ] At 360 px on a LeetCode problem, the header, hint path, last reply and composer are visible without scrolling, with the context collapsed.
+- [ ] Every existing feature still works: import, per-problem sessions, New problem, Clear chat, all 6 modes, free-form chat, the error banner, and saving the session.
+- [ ] Revealing the solution needs a confirmation. Cancel is the default and Esc closes the dialog.
+- [ ] Review replies show correctness, coloured Time and Space badges, the issues, and a hidden next hint, whenever the backend returns them.
+- [ ] Fenced code renders in monospace with a working copy button. No model output is injected as HTML.
+- [ ] The mascot shows the idle, thinking, analyzing, hint, success and error states. With reduced motion there's no animation.
+- [ ] Retry resends the last user message after an error.
+- [ ] Shortcuts work when the panel has focus: `/`, `Alt+H`, `Alt+R`, `Alt+E`, `Esc`. Every interactive element has a visible focus ring.
+- [ ] The extension shows "Big-O" and the mascot icon in the toolbar and on the extensions page. No requests go to fonts.googleapis.com.
+- [ ] Lint and build are clean, `node --test 'src/**/*.test.js'` passes, and the backend suite passes without changes.
+- [ ] No new npm dependencies (`package.json` dependencies unchanged).
 
 ## Open Questions
 
-1. **Automatic switching:** should the panel follow tab changes (`chrome.tabs.onActivated` / `onUpdated`) and switch sessions without a "Refresh tab" click? That costs more code and may need the `tabs` listener wiring. Proposed: not in v1.
-2. **Retention:** should sessions be capped (for example, keep the 50 most recently updated) to stay well under the ~5 MB `localStorage` limit? Proposed: no cap in v1, and rely on the quota error path.
-3. **Delete:** is there a need for a "Delete all sessions" control? Proposed: no.
-4. **Existing bug, fix now?** `onClick={sendMessage}` on the Ask button passes the click event as `requestedMode`, so `JSON.stringify` gets an event object as the mode. It most likely throws on React's circular refs, so the Ask button fails while Enter works. That's a one-line fix (`onClick={() => sendMessage()}`). Proposed: fix it in this work, since it touches the same file.
+1. **Witty microcopy:** should the rotating "thinking" lines be fixed (2–4 lines) or tied to the mode, for example "Reading your code…" for a review? Proposed: tie them to the mode, 2 lines each.
+2. **Free-form chat replies** carry no step. Should they still show a left rule? Proposed: a neutral rule.
+3. **Branch:** start from `main` after the per-problem sessions PR is merged, or stack on `feature/per-problem-sessions`? Proposed: wait for the merge, then branch `feature/big-o-redesign` from `main`.
