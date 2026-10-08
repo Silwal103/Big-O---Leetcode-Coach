@@ -11,8 +11,8 @@ function textFromSelectors(selectors) {
 function extractLeetCodeContext() {
   const title = textFromSelectors([
     '[data-cy="question-title"]',
-    'h1.text-title-large',
-    'h1',
+    // Current UI renders the title in a non-h1 element; a bare 'h1' fallback picked up unrelated headings.
+    '.text-title-large',
   ])
 
   const description = textFromSelectors([
