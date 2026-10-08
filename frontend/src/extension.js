@@ -10,8 +10,19 @@ export async function getActiveTabContext() {
     return { title: '', description: '', constraints: '', examples: '', code: '', language: '', url: tab?.url || '' }
   }
 
+  try {
+    return await requestContext(tab.id)
+  } catch (err) {
+    // Tabs opened before the extension was installed or reloaded have no live content script.
+    if (!err.message.includes('Receiving end does not exist')) throw err
+    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content-script.js'] })
+    return requestContext(tab.id)
+  }
+}
+
+function requestContext(tabId) {
   return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(tab.id, { type: 'extract-context' }, (response) => {
+    chrome.tabs.sendMessage(tabId, { type: 'extract-context' }, (response) => {
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message))
         return

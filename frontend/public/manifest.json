@@ -3,7 +3,7 @@
   "name": "Big-O",
   "description": "A calm coding coach that helps you get unstuck on LeetCode without giving away the answer.",
   "version": "0.1.0",
-  "permissions": ["sidePanel", "activeTab", "tabs"],
+  "permissions": ["sidePanel", "activeTab", "tabs", "scripting"],
   "host_permissions": ["http://localhost:8000/*", "https://leetcode.com/*"],
   "action": {
     "default_title": "Open Big-O"
