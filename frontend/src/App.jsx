@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { getActiveTabContext, isExtension } from './extension'
+import { Composer } from './components/Composer'
 import { Header } from './components/Header'
 import { Message } from './components/Message'
 import { ProblemContext } from './components/ProblemContext'
+import { canRetry, isTypingTarget } from './lib/keys'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
 /**
@@ -134,9 +136,10 @@ function App() {
    *
    * @param {string} requestedMode - The tutor assistance mode to request.
    * @param {string} requestedMessage - The message to send to the tutor.
+   * @param {boolean} [retry] - Resend the trailing unanswered user message instead of adding a new one.
    * @returns {Promise<void>}
    */
-  const sendMessage = async (requestedMode = 'chat', requestedMessage = input) => {
+  const sendMessage = async (requestedMode = 'chat', requestedMessage = input, retry = false) => {
     const trimmed = requestedMessage.trim()
     if (!trimmed || loading) return
 
@@ -144,9 +147,12 @@ function App() {
     setError(null)
 
     // Add user message to chat
-    const userMessage = { role: 'user', content: trimmed }
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
+    // On retry the failed message is already shown; don't add it twice or repeat it in history.
+    const priorMessages = retry ? messages.slice(0, -1) : messages
+    if (!retry) {
+      setMessages(prev => [...prev, { role: 'user', content: trimmed, mode: requestedMode }])
+      setInput('')
+    }
     setLoading(true)
     const requestedHintLevel = requestedMode === 'show_solution'
       ? 5
@@ -168,7 +174,7 @@ function App() {
           language: context.language,
           mode: requestedMode,
           hint_level: requestedHintLevel,
-          history: messages.slice(-10).map(message => ({
+          history: priorMessages.slice(-10).map(message => ({
             role: message.role,
             content: message.content,
           })),
@@ -218,12 +224,22 @@ function App() {
     sendMessage(mode, message)
   }
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
-    }
+  /** Resend the last unanswered user message with its original mode. */
+  const retryLastMessage = () => {
+    const last = messages.at(-1)
+    sendMessage(last.mode || 'chat', last.content, true)
   }
+
+  // "/" focuses the composer from anywhere except while typing in a field.
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target)) return
+      event.preventDefault()
+      inputRef.current?.focus()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return (
     <>
@@ -295,51 +311,40 @@ function App() {
               animate={{ opacity: 1, y: 0 }}
               transition={motionTransition}
             >
-              <span className="error-banner__icon">⚠️</span>
-              {error}
+              <span className="error-banner__text">{error}</span>
+              {canRetry(messages) && !loading && (
+                <button type="button" className="error-banner__retry" onClick={retryLastMessage}>
+                  Retry
+                </button>
+              )}
             </motion.div>
           )}
 
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="mode-controls" aria-label="Tutor assistance modes">
-          {TUTOR_MODES.map(mode => (
-            <motion.button
-              key={mode.id}
-              className={`mode-controls__btn mode-controls__btn--${mode.id}`}
-              onClick={() => requestTutorMode(mode.id, mode.message)}
-              disabled={loading}
-              whileHover={shouldReduceMotion ? undefined : { y: -1 }}
-              whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-            >
-              {mode.label}
-            </motion.button>
-          ))}
-        </div>
-        <div className="input-area">
-          <textarea
-            ref={inputRef}
-            className="input-area__field"
-            placeholder="Ask the tutor a question..."
+        <div className="dock">
+          <div className="mode-controls" aria-label="Tutor assistance modes">
+            {TUTOR_MODES.map(mode => (
+              <motion.button
+                key={mode.id}
+                className={`mode-controls__btn mode-controls__btn--${mode.id}`}
+                onClick={() => requestTutorMode(mode.id, mode.message)}
+                disabled={loading}
+                whileHover={shouldReduceMotion ? undefined : { y: -1 }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+              >
+                {mode.label}
+              </motion.button>
+            ))}
+          </div>
+          <Composer
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={setInput}
+            onSubmit={() => sendMessage()}
             disabled={loading}
-            rows={1}
-            id="tutor-input"
+            inputRef={inputRef}
           />
-          <motion.button
-            className="input-area__btn"
-            onClick={() => sendMessage()}
-            disabled={loading || !input.trim()}
-            id="ask-tutor-btn"
-            whileHover={shouldReduceMotion ? undefined : { y: -1 }}
-            whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-          >
-            {loading ? 'Thinking…' : 'Ask Tutor'}
-          </motion.button>
         </div>
       </main>
     </>

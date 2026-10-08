@@ -127,7 +127,7 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 
 ## Task 6: Composer, Retry and the `/` shortcut
 
-**Description:** Add `Composer.jsx`: a sticky bar with the glass effect, a textarea that grows up to about 6 lines, an icon Send button, and a hint line "↵ send · ⇧↵ newline" using `Kbd.jsx`. Enter and Shift+Enter behave exactly as before. Restyle the error banner (no emoji) and add **Retry**: `App` records the last `(mode, message)` passed to `sendMessage`; Retry removes the trailing unanswered user message and calls `sendMessage(mode, message)` again. Pressing `/` anywhere outside a text field focuses the composer.
+**Description:** Add `Composer.jsx`: a sticky bar with the glass effect, a textarea that grows up to about 6 lines, an icon Send button, and a hint line "↵ send · ⇧↵ newline" using `Kbd.jsx`. Enter and Shift+Enter behave exactly as before. Restyle the error banner (no emoji) and add **Retry**: `App` records the last `(mode, message)` passed to `sendMessage`; Retry calls `sendMessage(mode, message, retry = true)`, which keeps the already-shown failed message (no duplicate) and leaves it out of the history it sends. User messages now store their `mode` so Retry knows what to resend. Pressing `/` anywhere outside a text field focuses the composer.
 
 **Acceptance criteria:**
 - [ ] Sending, Enter, Shift+Enter, and the disabled state while loading all behave as before.
@@ -135,7 +135,7 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 - [ ] `/` focuses the composer, and typing `/` inside any text field still types the character.
 
 **Verification:**
-- [ ] Standard checks
+- [x] Standard checks
 - [ ] Manual: the Retry flow above, the `/` shortcut, and a 6-line message at 360 px
 - [ ] Regression pass
 

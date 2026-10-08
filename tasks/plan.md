@@ -14,7 +14,7 @@ Restyle and restructure the side panel into Big-O, a calm developer tool, **with
 - **The logic lives in pure `src/lib/` modules** (`richText.js`, `ladder.js`) tested with `node:test`. That is the only automated coverage for new behaviour, so anything with branching logic goes there.
 - **Tokens first.** `tokens.css` lands in Task 1 and every later style uses it, so no colour or spacing values are written out by hand.
 - **Header without a menu.** Three icon buttons fit at 360 px; an overflow menu would need its own focus and keyboard handling. (SPEC updated.)
-- **Retry** removes the trailing user message that got no reply, then calls the existing `sendMessage(mode, message)`. The handler itself doesn't change. (SPEC updated.)
+- **Retry** calls `sendMessage(mode, message, retry = true)`: the failed message stays shown once and is left out of the history sent. User messages store their `mode`.
 - **Toolbar icons** come from the same SVG as `Mascot.jsx`, rendered by `scripts/icons.sh` with `rsvg-convert`, a local tool and not an npm dependency.
 
 ## Dependency Graph
@@ -46,7 +46,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 ### Phase 2: Conversation
 - [x] Task 4: Document-style messages with safe code-block rendering (M)
 - [x] Task 5: Structured review details with complexity badges (M)
-- [ ] Task 6: Composer, Retry and the `/` shortcut (S)
+- [x] Task 6: Composer, Retry and the `/` shortcut (S)
 
 ### Checkpoint B: Conversation
 - [ ] Code renders and copies, reviews show badges, Retry works, nothing is injected as HTML

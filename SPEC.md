@@ -31,7 +31,7 @@ Redesign the side-panel extension, renamed **Big-O**, from a generic chat form i
 |---|---|
 | Accent | Mint/teal `#3CCFB0`, used only for progress and the primary action. Amber means caution or solution, red means error, green means success. |
 | Solution gate | A confirmation dialog: a native `<dialog>` with Cancel focused by default. |
-| Retry on error | Added. It removes the trailing user message that got no reply, then resends it with its original mode, so the message never appears twice. |
+| Retry on error | Added. It resends the trailing user message that got no reply, with its original mode, without adding it again, so the message never appears twice. |
 | Toolbar icons | PNGs at 16, 32, 48 and 128 px, rendered from the mascot SVG with `rsvg-convert` (`brew install librsvg`, a local dev tool, not a project dependency). The PNGs are committed. |
 | Theme | Dark only. |
 | Mascot | Inline SVG animated with CSS + `motion`. No new dependency. |
