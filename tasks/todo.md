@@ -61,8 +61,8 @@ All commands run from `frontend/` unless noted.
 - [ ] Neither problem's messages ever show up under the other's key in storage.
 
 **Verification:**
-- [ ] Unit tests still pass. Add a test if `sessions.js` gains a helper.
-- [ ] `npm run lint` and `npm run build` pass
+- [x] Unit tests still pass. Add a test if `sessions.js` gains a helper.
+- [x] `npm run lint` and `npm run build` pass
 - [ ] Manual (unpacked extension): run the Two Sum ↔ Valid Parentheses flow above, then inspect `leetcode-coach-sessions` in the panel's DevTools
 
 **Dependencies:** Task 2

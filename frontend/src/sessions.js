@@ -109,13 +109,26 @@ export function upsertSession(store, key, data) {
 }
 
 /**
- * The active session with defaults filled in.
+ * Decide which session an imported tab context belongs to.
+ * An import without a title (non-LeetCode tab, web-app mode) stays in the active session.
+ *
+ * @param {string} activeKey
+ * @param {{ url?: string, title?: string }} imported
+ * @returns {string}
+ */
+export function sessionKeyForImport(activeKey, imported) {
+  return imported.title ? sessionKeyFor(imported) : activeKey
+}
+
+/**
+ * The session at `key` (default: the active one) with defaults filled in.
  *
  * @param {object} store
+ * @param {string} [key]
  * @returns {{ context: object, messages: Array, hintLevel: number }}
  */
-export function activeSession(store) {
-  const session = store.sessions[store.activeKey] || {}
+export function sessionFor(store, key = store.activeKey) {
+  const session = store.sessions[key] || {}
   return {
     context: { ...EMPTY_CONTEXT, ...session.context },
     messages: session.messages || [],

@@ -37,7 +37,7 @@ Ask-button bug fix (independent)                                     (Task 1)
 - [ ] Unit tests, lint and build pass; reopening the panel restores the session; the legacy session is migrated
 
 ### Phase 2: Core behavior
-- [ ] Task 3: Importing a different problem switches sessions (S)
+- [x] Task 3: Importing a different problem switches sessions (S)
 - [ ] Task 4: Clear chat and New problem are scoped per session; quota errors are surfaced (S)
 
 ### Checkpoint B: Complete

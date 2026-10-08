@@ -2,10 +2,11 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   EMPTY_CONTEXT,
-  activeSession,
   loadStore,
   saveStore,
+  sessionFor,
   sessionKeyFor,
+  sessionKeyForImport,
   upsertSession,
 } from './sessions.js'
 
@@ -42,7 +43,7 @@ test('loadStore returns an empty store when nothing is saved', () => {
   const store = loadStore(memoryStorage())
   assert.equal(store.activeKey, 'untitled')
   assert.deepEqual(store.sessions, {})
-  assert.deepEqual(activeSession(store), { context: EMPTY_CONTEXT, messages: [], hintLevel: 0 })
+  assert.deepEqual(sessionFor(store), { context: EMPTY_CONTEXT, messages: [], hintLevel: 0 })
 })
 
 test('loadStore survives corrupt JSON and a throwing storage', () => {
@@ -63,7 +64,7 @@ test('loadStore migrates the legacy single session and removes the legacy key', 
 
   const store = loadStore(storage)
   assert.equal(store.activeKey, 'two-sum')
-  const session = activeSession(store)
+  const session = sessionFor(store)
   assert.deepEqual(session.messages, legacy.messages)
   assert.equal(session.hintLevel, 2)
   assert.equal(session.context.title, 'Two Sum')
@@ -78,7 +79,7 @@ test('loadStore keeps the legacy key when the migrated store cannot be saved', (
   storage.setItem = () => { throw new Error('QuotaExceededError') }
 
   const store = loadStore(storage)
-  assert.equal(activeSession(store).messages.length, 1)
+  assert.equal(sessionFor(store).messages.length, 1)
   assert.equal(storage.map.get('leetcode-coach-session'), legacy)
 })
 
@@ -100,4 +101,25 @@ test('upsertSession round-trips through save and load without touching other ses
   assert.equal(reloaded.sessions['two-sum'].hintLevel, 2)
   assert.equal(reloaded.sessions['two-sum'].messages[0].content, 'a')
   assert.equal(typeof reloaded.sessions['two-sum'].updatedAt, 'number')
+})
+
+test('sessionKeyForImport switches only when the import found a problem', () => {
+  const twoSum = { title: 'Two Sum', url: 'https://leetcode.com/problems/two-sum/description/' }
+  assert.equal(sessionKeyForImport('valid-parentheses', twoSum), 'two-sum')
+  assert.equal(sessionKeyForImport('two-sum', twoSum), 'two-sum')
+  // Non-LeetCode tab or web-app mode: nothing imported, stay put.
+  assert.equal(sessionKeyForImport('two-sum', { url: 'https://example.com' }), 'two-sum')
+  assert.equal(sessionKeyForImport('two-sum', {}), 'two-sum')
+})
+
+test('sessionFor restores a saved problem and gives a blank session for a new one', () => {
+  let store = loadStore(memoryStorage())
+  store = upsertSession(store, 'two-sum', { messages: [{ role: 'ai', content: 'hint' }], hintLevel: 2, context: { title: 'Two Sum' } })
+  store = upsertSession(store, 'valid-parentheses', { messages: [], hintLevel: 0 })
+
+  const back = sessionFor(store, 'two-sum')
+  assert.equal(back.hintLevel, 2)
+  assert.equal(back.messages[0].content, 'hint')
+  assert.equal(back.context.title, 'Two Sum')
+  assert.deepEqual(sessionFor(store, 'climbing-stairs'), { context: EMPTY_CONTEXT, messages: [], hintLevel: 0 })
 })

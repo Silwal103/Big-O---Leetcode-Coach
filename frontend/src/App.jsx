@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import './App.css'
 import { getActiveTabContext, isExtension } from './extension'
-import { EMPTY_CONTEXT, activeSession, loadStore, saveStore, upsertSession } from './sessions'
+import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
 /**
  * Phase 1 — Minimal Chat UI
@@ -33,14 +33,14 @@ function App() {
   const motionTransition = shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: 'easeOut' }
   const [initialStore] = useState(() => loadStore(localStorage))
   const storeRef = useRef(initialStore)
-  const [activeKey] = useState(initialStore.activeKey)
-  const [messages, setMessages] = useState(() => activeSession(initialStore).messages)
+  const [activeKey, setActiveKey] = useState(initialStore.activeKey)
+  const [messages, setMessages] = useState(() => sessionFor(initialStore).messages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [context, setContext] = useState(() => activeSession(initialStore).context)
+  const [context, setContext] = useState(() => sessionFor(initialStore).context)
   const [contextStatus, setContextStatus] = useState(isExtension ? 'Ready to import' : 'Web app mode')
-  const [hintLevel, setHintLevel] = useState(() => activeSession(initialStore).hintLevel)
+  const [hintLevel, setHintLevel] = useState(() => sessionFor(initialStore).hintLevel)
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -54,10 +54,19 @@ function App() {
     setError(null)
     try {
       const imported = await getActiveTabContext()
-      setContext(previous => ({
-        ...previous,
-        ...Object.fromEntries(Object.entries(imported).filter(([, value]) => value)),
-      }))
+      const found = Object.fromEntries(Object.entries(imported).filter(([, value]) => value))
+      const currentKey = storeRef.current.activeKey
+      const key = sessionKeyForImport(currentKey, imported)
+      if (key === currentKey) {
+        setContext(previous => ({ ...previous, ...found }))
+      } else {
+        // The persist effect has already saved the outgoing session; swap all state in one batch.
+        const next = sessionFor(storeRef.current, key)
+        setActiveKey(key)
+        setMessages(next.messages)
+        setHintLevel(next.hintLevel)
+        setContext({ ...next.context, ...found })
+      }
       setContextStatus(imported.title ? `Imported: ${imported.title}` : 'No LeetCode problem found')
     } catch (err) {
       setContextStatus('Import failed')
