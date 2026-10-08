@@ -81,7 +81,7 @@ All commands run from `frontend/` unless noted.
 - [ ] A forced `setItem` failure shows the banner and the chat keeps working.
 
 **Verification:**
-- [ ] `npm run lint` and `npm run build` pass
+- [x] `npm run lint` and `npm run build` pass
 - [ ] Manual: the flows above. For quota, temporarily run `localStorage.setItem = () => { throw new DOMException('', 'QuotaExceededError') }` in the panel's DevTools and send a message.
 
 **Dependencies:** Task 3

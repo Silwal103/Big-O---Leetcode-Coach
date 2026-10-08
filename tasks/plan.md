@@ -38,7 +38,7 @@ Ask-button bug fix (independent)                                     (Task 1)
 
 ### Phase 2: Core behavior
 - [x] Task 3: Importing a different problem switches sessions (S)
-- [ ] Task 4: Clear chat and New problem are scoped per session; quota errors are surfaced (S)
+- [x] Task 4: Clear chat and New problem are scoped per session; quota errors are surfaced (S)
 
 ### Checkpoint B: Complete
 - [ ] All SPEC success criteria are met; user stories 1–4 pass manually in the unpacked extension

@@ -46,7 +46,9 @@ function App() {
 
   useEffect(() => {
     storeRef.current = upsertSession(storeRef.current, activeKey, { messages, context, hintLevel })
-    saveStore(localStorage, storeRef.current)
+    if (!saveStore(localStorage, storeRef.current)) {
+      setError("Couldn't save this session. Browser storage may be full.")
+    }
   }, [activeKey, messages, context, hintLevel])
 
   const refreshContext = async () => {
@@ -75,13 +77,14 @@ function App() {
   }
 
   /**
-   * Clear the active problem locally and notify the backend of the reset.
+   * Switch to a blank 'untitled' session (saved sessions are kept) and notify the backend.
    *
    * @returns {Promise<void>}
    */
   const resetSession = async () => {
     if (loading) return
 
+    setActiveKey('untitled')
     setMessages([])
     setInput('')
     setError(null)
