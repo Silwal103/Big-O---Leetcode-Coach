@@ -107,6 +107,9 @@ test('sessionKeyForImport switches only when the import found a problem', () => 
   const twoSum = { title: 'Two Sum', url: 'https://leetcode.com/problems/two-sum/description/' }
   assert.equal(sessionKeyForImport('valid-parentheses', twoSum), 'two-sum')
   assert.equal(sessionKeyForImport('two-sum', twoSum), 'two-sum')
+  // Title selector missed (LeetCode DOM change): the URL slug alone must still switch.
+  const queen = { title: '', url: 'https://leetcode.com/problems/minimum-queen-moves-to-reach-target/' }
+  assert.equal(sessionKeyForImport('two-sum', queen), 'minimum-queen-moves-to-reach-target')
   // Non-LeetCode tab or web-app mode: nothing imported, stay put.
   assert.equal(sessionKeyForImport('two-sum', { url: 'https://example.com' }), 'two-sum')
   assert.equal(sessionKeyForImport('two-sum', {}), 'two-sum')

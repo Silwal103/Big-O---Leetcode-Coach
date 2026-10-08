@@ -110,14 +110,16 @@ export function upsertSession(store, key, data) {
 
 /**
  * Decide which session an imported tab context belongs to.
- * An import without a title (non-LeetCode tab, web-app mode) stays in the active session.
+ * An import with neither a problem URL nor a title (non-LeetCode tab, web-app
+ * mode) stays in the active session.
  *
  * @param {string} activeKey
  * @param {{ url?: string, title?: string }} imported
  * @returns {string}
  */
 export function sessionKeyForImport(activeKey, imported) {
-  return imported.title ? sessionKeyFor(imported) : activeKey
+  const key = sessionKeyFor(imported)
+  return key === 'untitled' ? activeKey : key
 }
 
 /**
