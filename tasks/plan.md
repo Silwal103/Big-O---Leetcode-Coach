@@ -30,7 +30,7 @@ Ask-button bug fix (independent)                                     (Task 1)
 ## Task List
 
 ### Phase 1: Foundation
-- [ ] Task 1: Fix the Ask button passing the click event as the mode (XS)
+- [x] Task 1: Fix the Ask button passing the click event as the mode (XS)
 - [ ] Task 2: Per-problem store, with the current session migrated and restored on reopen (M)
 
 ### Checkpoint A

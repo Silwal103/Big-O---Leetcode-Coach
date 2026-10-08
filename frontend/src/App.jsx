@@ -422,7 +422,7 @@ function App() {
           />
           <motion.button
             className="input-area__btn"
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
             id="ask-tutor-btn"
             whileHover={shouldReduceMotion ? undefined : { y: -1 }}

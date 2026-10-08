@@ -11,10 +11,10 @@ All commands run from `frontend/` unless noted.
 **Description:** `onClick={sendMessage}` on `#ask-tutor-btn` passes the React click event in as `requestedMode`. Change it to `onClick={() => sendMessage()}` so clicking Ask behaves the same as pressing Enter.
 
 **Acceptance criteria:**
-- [ ] Clicking "Ask Tutor" sends `mode: "chat"` and the tutor reply is shown.
+- [x] Clicking "Ask Tutor" sends `mode: "chat"` and the tutor reply is shown.
 
 **Verification:**
-- [ ] `npm run lint` and `npm run build` pass
+- [x] `npm run lint` and `npm run build` pass
 - [ ] Manual: `npm run dev`, type a question, click Ask, and check that the request payload in the Network tab has `"mode":"chat"`
 
 **Dependencies:** None
