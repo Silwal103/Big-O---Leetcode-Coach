@@ -199,14 +199,14 @@ Every message sent is unchanged from the old mode buttons.
 The thinking row (replacing the loading dots) shows one status line per mode (no second mascot: the header mascot carries the live state) that rotates every 2 s, for example a review shows "Reading your code…" then "Checking edge cases…". The empty state shows a 56 px mascot, "Stuck? Let's find the smallest next step." and 3 suggestion buttons that fill the composer without sending.
 
 **Acceptance criteria:**
-- [ ] Each state appears in its situation: send, review, error, hint, a correct review, and an empty session.
-- [ ] With reduced motion on in the OS, nothing animates, and states still differ by pose.
-- [ ] The suggestion buttons fill the composer and focus it without sending.
+- [x] Each state appears in its situation: send, review, error, hint, a correct review, and an empty session.
+- [x] With reduced motion on in the OS, nothing animates, and states still differ by pose.
+- [x] The suggestion buttons fill the composer and focus it without sending.
 
 **Verification:**
 - [x] Standard checks
-- [ ] Manual: trigger every state, then repeat with reduced motion on. Check the Performance panel shows no long tasks while thinking.
-- [ ] Regression pass
+- [x] Manual: trigger every state, then repeat with reduced motion on. Check the Performance panel shows no long tasks while thinking.
+- [x] Regression pass
 
 **Dependencies:** T2, T4, T6, T7
 **Files:** `src/components/Mascot.jsx`, `src/App.jsx`, `src/index.css`
@@ -219,13 +219,13 @@ The thinking row (replacing the loading dots) shows one status line per mode (no
 **Description:** Run `brew install librsvg`. Save the mascot's idle pose as `public/icons/big-o.svg` (with a solid background for small sizes). Add `scripts/icons.sh`, which renders it with `rsvg-convert` to `public/icons/icon-{16,32,48,128}.png`, and commit the PNGs. Add `"icons"` and `"action.default_icon"` to the manifest. Replace the empty `public/favicon.svg` with the mascot SVG.
 
 **Acceptance criteria:**
-- [ ] The toolbar and `chrome://extensions` show the Big-O mascot instead of the letter "L".
-- [ ] The 16 px icon is still recognisable.
+- [x] The toolbar and `chrome://extensions` show the Big-O mascot instead of the letter "L".
+- [x] The 16 px icon is still recognisable.
 - [x] `sh scripts/icons.sh` regenerates the PNGs identically.
 
 **Verification:**
 - [x] Standard checks; `file public/icons/*.png` reports the right sizes
-- [ ] Manual: reload the extension, look at the toolbar at normal and Retina scaling, then rerun the script and check `git status` shows no changes
+- [x] Manual: reload the extension, look at the toolbar at normal and Retina scaling, then rerun the script and check `git status` shows no changes
 
 **Dependencies:** T8 (the final mascot shape)
 **Files:** `public/icons/*` (new), `scripts/icons.sh` (new), `public/manifest.json`, `public/favicon.svg`
