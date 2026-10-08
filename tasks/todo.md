@@ -111,12 +111,12 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Description:** In `sendMessage`, also store `correctness`, `time_complexity`, `space_complexity`, `issues` and `next_hint` from the response on `aiMessage` (all optional; this is display data only and the request is unchanged). Add `src/lib/ladder.js` with `complexityTone(str)` → `'ok'|'accent'|'warn'|'danger'|'neutral'`, plus a test. Add `ReviewDetails` inside `Message.jsx`: a correctness line, Time and Space badges coloured by tone, a list of issues, and a "Want a nudge?" `<details>` that holds `next_hint`. It renders only the fields that are present.
 
 **Acceptance criteria:**
-- [ ] A "Review my approach" reply shows whichever of correctness, Time, Space, issues and the next hint the backend returned. If none came back, it looks like a plain reply.
-- [ ] Badge colours follow the SPEC: O(1)/O(log n) ok, O(n) accent, O(n log n) warn, O(n²) or worse danger, unrecognized neutral.
+- [x] A "Review my approach" reply shows whichever of correctness, Time, Space, issues and the next hint the backend returned. If none came back, it looks like a plain reply.
+- [x] Badge colours follow the SPEC: O(1)/O(log n) ok, O(n) accent, O(n log n) warn, O(n²) or worse danger, unrecognized neutral.
 - [ ] Messages saved before this change still render.
 
 **Verification:**
-- [ ] `ladder.test.js` (complexity part) covers `O(1)`, `O(log n)`, `O(N)`, `O(n log n)`, `O(n^2)`, `O(n²)`, `O(2^n)`, `O(n * m)` → neutral, `''` → neutral. All standard checks pass.
+- [x] `ladder.test.js` (complexity part) covers `O(1)`, `O(log n)`, `O(N)`, `O(n log n)`, `O(n^2)`, `O(n²)`, `O(2^n)`, `O(n * m)` → neutral, `''` → neutral. All standard checks pass.
 - [ ] Manual: review correct and incorrect code on a real problem, then reload the panel and check the old messages still render
 
 **Dependencies:** T4

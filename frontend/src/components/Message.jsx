@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { parseBlocks } from '../lib/richText'
+import { complexityLabel, complexityTone, correctnessTone } from '../lib/ladder'
+import { latexToText, parseBlocks } from '../lib/richText'
 
 function Inline({ tokens }) {
   return tokens.map((token, i) => {
@@ -76,6 +77,58 @@ export function RichText({ text }) {
   )
 }
 
+function ComplexityBadge({ label, value }) {
+  if (!value) return null
+  return (
+    <div className="review__metric">
+      <dt>{label}</dt>
+      <dd className={`badge badge--${complexityTone(value)}`} title={value}>{latexToText(complexityLabel(value))}</dd>
+    </div>
+  )
+}
+
+/**
+ * Structured review output; renders only the fields the backend returned.
+ *
+ * @param {{ message: object }} props
+ * @returns {JSX.Element|null}
+ */
+function ReviewDetails({ message }) {
+  const { correctness, timeComplexity, spaceComplexity, nextHint } = message
+  const issues = message.issues || []
+  if (!correctness && !timeComplexity && !spaceComplexity && !issues.length && !nextHint) return null
+
+  return (
+    <div className="review">
+      {correctness && (
+        <div className={`review__verdict review__verdict--${correctnessTone(correctness)}`}>
+          <RichText text={correctness} />
+        </div>
+      )}
+      {(timeComplexity || spaceComplexity) && (
+        <dl className="review__metrics">
+          <ComplexityBadge label="Time" value={timeComplexity} />
+          <ComplexityBadge label="Space" value={spaceComplexity} />
+        </dl>
+      )}
+      {issues.length > 0 && (
+        <div className="review__issues">
+          <p className="review__heading">Issues</p>
+          <ul>
+            {issues.map((issue, i) => <li key={i}><RichText text={issue} /></li>)}
+          </ul>
+        </div>
+      )}
+      {nextHint && (
+        <details className="review__nudge">
+          <summary>Want a nudge?</summary>
+          <RichText text={nextHint} />
+        </details>
+      )}
+    </div>
+  )
+}
+
 /**
  * One conversation entry. Tutor replies read like a document with a tone rule;
  * user messages are compact and right-aligned.
@@ -98,6 +151,7 @@ export function Message({ message }) {
     <div className={`message message--ai message--${tone}`}>
       <span className="message__label">Big-O</span>
       <RichText text={message.content} />
+      <ReviewDetails message={message} />
       {(message.hintLevel > 0 || message.revealsSolution) && (
         <div className="message__meta">
           {message.revealsSolution

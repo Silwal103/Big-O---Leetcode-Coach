@@ -188,6 +188,11 @@ function App() {
         content: data.response,
         hintLevel: data.hint_level,
         revealsSolution: data.reveals_solution,
+        correctness: data.correctness,
+        timeComplexity: data.time_complexity,
+        spaceComplexity: data.space_complexity,
+        issues: data.issues,
+        nextHint: data.next_hint,
       }
       setHintLevel(aiMessage.hintLevel)
       setMessages(prev => [...prev, aiMessage])

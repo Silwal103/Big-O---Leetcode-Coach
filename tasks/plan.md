@@ -45,7 +45,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 
 ### Phase 2: Conversation
 - [x] Task 4: Document-style messages with safe code-block rendering (M)
-- [ ] Task 5: Structured review details with complexity badges (M)
+- [x] Task 5: Structured review details with complexity badges (M)
 - [ ] Task 6: Composer, Retry and the `/` shortcut (S)
 
 ### Checkpoint B: Conversation

@@ -394,6 +394,114 @@ body {
   white-space: nowrap;
 }
 
+/* --- Review Details --- */
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.review__verdict {
+  display: flex;
+  gap: var(--sp-2);
+  font-weight: 500;
+}
+
+.review__verdict::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 0.6em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.review__verdict--ok {
+  color: var(--ok);
+}
+
+.review__verdict--warn {
+  color: var(--warn);
+}
+
+.review__verdict .rich {
+  color: var(--text);
+}
+
+.review__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.review__metric {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.review__metric dt,
+.review__heading {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+.badge {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px var(--sp-2);
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  background: var(--raised);
+  color: var(--text-2);
+}
+
+.badge--ok { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+.badge--accent { color: var(--accent); background: var(--accent-soft); }
+.badge--warn { color: var(--warn); background: var(--warn-soft); }
+.badge--danger { color: var(--danger); background: var(--danger-soft); }
+
+.review__issues ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-top: var(--sp-1);
+  padding-left: var(--sp-5);
+}
+
+.review__issues li::marker {
+  color: var(--warn);
+}
+
+.review__nudge summary {
+  width: fit-content;
+  border-radius: var(--r-sm);
+  color: var(--accent);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.review__nudge summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.review__nudge[open] summary {
+  margin-bottom: var(--sp-2);
+}
+
 /* --- Rich Text --- */
 .rich {
   display: flex;
