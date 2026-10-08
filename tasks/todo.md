@@ -29,12 +29,12 @@ All commands run from `frontend/` unless noted.
 
 **Acceptance criteria:**
 - [ ] Reopening the panel restores the active problem's chat, hint level and context.
-- [ ] A browser with the legacy `leetcode-coach-session` key opens with that chat intact, filed under `sessionKeyFor(legacy.context)`, and the legacy key is gone.
-- [ ] Corrupt JSON under either key opens an empty panel instead of crashing.
+- [x] A browser with the legacy `leetcode-coach-session` key opens with that chat intact, filed under `sessionKeyFor(legacy.context)`, and the legacy key is gone.
+- [x] Corrupt JSON under either key opens an empty panel instead of crashing.
 
 **Verification:**
-- [ ] `node --test src/sessions.test.js` passes. It covers: slug from `/problems/two-sum/`, `/problems/two-sum/description/`, `/problems/two-sum?envType=x`, `/problems/two-sum` with no trailing slash; the title fallback; `untitled`; legacy migration; corrupt JSON; `saveStore` returning `false` when `setItem` throws; an `upsertSession` round-trip
-- [ ] `npm run lint` and `npm run build` pass
+- [x] `node --test src/sessions.test.js` passes. It covers: slug from `/problems/two-sum/`, `/problems/two-sum/description/`, `/problems/two-sum?envType=x`, `/problems/two-sum` with no trailing slash; the title fallback; `untitled`; legacy migration; corrupt JSON; `saveStore` returning `false` when `setItem` throws; an `upsertSession` round-trip
+- [x] `npm run lint` and `npm run build` pass
 - [ ] Manual: in DevTools, set the legacy key by hand, reload, and check that the chat is shown and the store contains it
 
 **Dependencies:** None
@@ -45,7 +45,7 @@ All commands run from `frontend/` unless noted.
 
 ## Checkpoint A (after Tasks 1–2)
 - [ ] `node --test src/sessions.test.js`, `npm run lint` and `npm run build` all pass
-- [ ] Backend: `cd backend && python -m unittest discover tests` passes, unchanged
+- [ ] Backend: `cd backend && .venv/bin/python -m unittest discover tests` passes, unchanged
 - [ ] The unpacked extension (`frontend/dist`) loads, and reopening the panel restores the session
 - [ ] Review with a human before continuing
 

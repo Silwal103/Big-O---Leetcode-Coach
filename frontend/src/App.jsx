@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import './App.css'
 import { getActiveTabContext, isExtension } from './extension'
+import { EMPTY_CONTEXT, activeSession, loadStore, saveStore, upsertSession } from './sessions'
 
 /**
  * Phase 1 — Minimal Chat UI
@@ -13,17 +14,6 @@ import { getActiveTabContext, isExtension } from './extension'
  */
 
 const API_BASE = 'http://localhost:8000'
-const STORAGE_KEY = 'leetcode-coach-session'
-
-const EMPTY_CONTEXT = {
-  title: '',
-  description: '',
-  constraints: '',
-  examples: '',
-  code: '',
-  language: '',
-  url: '',
-}
 
 const TUTOR_MODES = [
   { id: 'hint', label: 'Give me a hint', message: 'Give me a hint.' },
@@ -41,37 +31,23 @@ const TUTOR_MODES = [
 function App() {
   const shouldReduceMotion = useReducedMotion()
   const motionTransition = shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: 'easeOut' }
-  const [messages, setMessages] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').messages || []
-    } catch {
-      return []
-    }
-  })
+  const [initialStore] = useState(() => loadStore(localStorage))
+  const storeRef = useRef(initialStore)
+  const [activeKey] = useState(initialStore.activeKey)
+  const [messages, setMessages] = useState(() => activeSession(initialStore).messages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [context, setContext] = useState(() => {
-    try {
-      return { ...EMPTY_CONTEXT, ...(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').context || {}) }
-    } catch {
-      return EMPTY_CONTEXT
-    }
-  })
+  const [context, setContext] = useState(() => activeSession(initialStore).context)
   const [contextStatus, setContextStatus] = useState(isExtension ? 'Ready to import' : 'Web app mode')
-  const [hintLevel, setHintLevel] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').hintLevel || 0
-    } catch {
-      return 0
-    }
-  })
+  const [hintLevel, setHintLevel] = useState(() => activeSession(initialStore).hintLevel)
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, context, hintLevel }))
-  }, [messages, context, hintLevel])
+    storeRef.current = upsertSession(storeRef.current, activeKey, { messages, context, hintLevel })
+    saveStore(localStorage, storeRef.current)
+  }, [activeKey, messages, context, hintLevel])
 
   const refreshContext = async () => {
     setContextStatus('Reading current tab…')

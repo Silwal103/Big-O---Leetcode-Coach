@@ -31,7 +31,7 @@ Ask-button bug fix (independent)                                     (Task 1)
 
 ### Phase 1: Foundation
 - [x] Task 1: Fix the Ask button passing the click event as the mode (XS)
-- [ ] Task 2: Per-problem store, with the current session migrated and restored on reopen (M)
+- [x] Task 2: Per-problem store, with the current session migrated and restored on reopen (M)
 
 ### Checkpoint A
 - [ ] Unit tests, lint and build pass; reopening the panel restores the session; the legacy session is migrated

@@ -33,7 +33,7 @@ Frontend build:  cd frontend && npm run build
 Frontend lint:   cd frontend && npm run lint
 Frontend tests:  cd frontend && node --test src/sessions.test.js
 Backend dev:     cd backend && uvicorn main:app --reload --port 8000
-Backend tests:   cd backend && python -m unittest discover tests
+Backend tests:   cd backend && .venv/bin/python -m unittest discover tests
 ```
 
 ## Project Structure
