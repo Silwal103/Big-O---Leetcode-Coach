@@ -1,12 +1,22 @@
 export const isExtension = Boolean(globalThis.chrome?.runtime?.id)
 
+// Exact host match: a substring check would also accept e.g. evil.example/?next=leetcode.com,
+// and the fallback below injects the content script into whatever tab passes this check.
+function isLeetCodeUrl(url) {
+  try {
+    return new URL(url).hostname === 'leetcode.com'
+  } catch {
+    return false
+  }
+}
+
 export async function getActiveTabContext() {
   if (!isExtension) {
     return { title: '', description: '', constraints: '', examples: '', code: '', language: '', url: '' }
   }
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-  if (!tab?.id || !tab.url?.includes('leetcode.com')) {
+  if (!tab?.id || !isLeetCodeUrl(tab.url)) {
     return { title: '', description: '', constraints: '', examples: '', code: '', language: '', url: tab?.url || '' }
   }
 

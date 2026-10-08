@@ -5,10 +5,11 @@ import assert from 'node:assert/strict'
 const calls = []
 let failuresLeft = 0
 let failureMessage = ''
+let activeTab = { id: 7, url: 'https://leetcode.com/problems/two-sum/' }
 globalThis.chrome = {
   runtime: { id: 'test-extension', lastError: undefined },
   tabs: {
-    query: async () => [{ id: 7, url: 'https://leetcode.com/problems/two-sum/' }],
+    query: async () => [activeTab],
     sendMessage(tabId, message, callback) {
       calls.push(['sendMessage', tabId])
       if (failuresLeft > 0) {
@@ -50,4 +51,17 @@ test('other messaging errors are not retried', async () => {
 
   await assert.rejects(getActiveTabContext(), /The tab was closed/)
   assert.deepEqual(calls, [['sendMessage', 7]])
+})
+
+test('only real leetcode.com tabs are messaged or injected into', async () => {
+  calls.length = 0
+  failuresLeft = 0
+  activeTab = { id: 9, url: 'https://evil.example/?next=leetcode.com' }
+  const context = await getActiveTabContext()
+  assert.equal(context.title, '')
+  assert.equal(context.url, 'https://evil.example/?next=leetcode.com')
+  assert.deepEqual(calls, [])
+
+  activeTab = { id: 7, url: 'https://leetcode.com/problems/two-sum/' }
+  assert.equal((await getActiveTabContext()).title, 'Two Sum')
 })
