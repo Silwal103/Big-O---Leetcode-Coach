@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { isTypingTarget } from '../lib/keys'
-import { STEPS, nextHintMode, stepForLevel } from '../lib/ladder'
+import { STEPS, ladderCaption, nextHintMode, stepForLevel } from '../lib/ladder'
 
 /**
  * Guided hint path: progress rail, one primary "Next hint", secondary actions,
@@ -17,7 +17,6 @@ export function HintLadder({ level, busy, onRequest }) {
   const cancelRef = useRef(null)
   const solutionRef = useRef(null)
   const step = stepForLevel(level)
-  const upcoming = stepForLevel(Math.min(level + 1, 4))
 
   // Alt+H / Alt+R / Alt+E, matched on the physical key so macOS Option doesn't break it.
   useEffect(() => {
@@ -48,9 +47,7 @@ export function HintLadder({ level, busy, onRequest }) {
     <section className="ladder" aria-label="Hint path">
       <div className="ladder__caption">
         <span className="ladder__step">{step ? step.label : 'No hints yet'}</span>
-        <span className="ladder__next">
-          {level >= 5 ? 'Solution revealed' : `Next: ${upcoming.label} · ${level}/5`}
-        </span>
+        <span className="ladder__next">{ladderCaption(level)}</span>
       </div>
       <div
         className="ladder__rail"

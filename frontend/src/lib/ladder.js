@@ -32,6 +32,18 @@ export function nextHintMode(level) {
   return level < 2 ? 'hint' : 'stronger_hint'
 }
 
+/**
+ * Caption beside the hint rail: where "Next hint" leads, or why it stops.
+ *
+ * @param {number} level - Current hint level (0-5).
+ * @returns {string}
+ */
+export function ladderCaption(level) {
+  if (level >= 5) return 'Solution revealed'
+  if (level === 4) return 'Solution needs confirmation · 4/5'
+  return `Next: ${stepForLevel(level + 1).label} · ${level}/5`
+}
+
 // First O(...) in the string, allowing one level of nested parens: O(n log(n)).
 const BIG_O = /O\(((?:[^()]|\([^()]*\))*)\)/i
 

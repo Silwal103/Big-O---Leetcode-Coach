@@ -11,15 +11,6 @@ import { canRetry, isTypingTarget } from './lib/keys'
 import { mascotState } from './lib/mascot'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
-/**
- * Phase 1 — Minimal Chat UI
- *
- * A simple chat interface that sends messages to the FastAPI backend
- * and displays the structured response from the LangChain → Gemini chain.
- *
- * No problem panel, code editor, or hint buttons yet — those come in later phases.
- */
-
 const API_BASE = 'http://localhost:8000'
 
 // The message each tutor mode sends; unchanged from the original mode buttons.

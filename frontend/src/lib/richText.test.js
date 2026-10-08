@@ -87,3 +87,10 @@ test('parseBlocks: HTML-looking input stays literal text', () => {
   ])
   assert.deepEqual(parseBlocks(''), [])
 })
+
+test('parseBlocks: an unindented line after a list starts a new paragraph', () => {
+  assert.deepEqual(parseBlocks('- item\nAfter the list'), [
+    { type: 'list', ordered: false, start: 1, items: [[{ type: 'text', value: 'item' }]] },
+    { type: 'paragraph', inlines: [{ type: 'text', value: 'After the list' }] },
+  ])
+})

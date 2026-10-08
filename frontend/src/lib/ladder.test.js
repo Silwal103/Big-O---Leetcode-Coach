@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { STEPS, complexityLabel, complexityTone, correctnessTone, nextHintMode, stepForLevel } from './ladder.js'
+import { STEPS, complexityLabel, complexityTone, correctnessTone, ladderCaption, nextHintMode, stepForLevel } from './ladder.js'
 
 test('complexityTone follows the SPEC colour scale', () => {
   const cases = {
@@ -61,4 +61,11 @@ test('stepForLevel: no step before the first hint', () => {
 
 test('nextHintMode: hint for the first two steps, stronger_hint after', () => {
   assert.deepEqual([0, 1, 2, 3, 4].map(nextHintMode), ['hint', 'hint', 'stronger_hint', 'stronger_hint', 'stronger_hint'])
+})
+
+test('ladderCaption never points at the step the user is already on', () => {
+  assert.equal(ladderCaption(0), 'Next: Nudge · 0/5')
+  assert.equal(ladderCaption(3), 'Next: Pseudocode · 3/5')
+  assert.equal(ladderCaption(4), 'Solution needs confirmation · 4/5')
+  assert.equal(ladderCaption(5), 'Solution revealed')
 })

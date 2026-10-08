@@ -11,41 +11,15 @@
   box-sizing: border-box;
 }
 
-:root {
-  /* Legacy names mapped onto tokens.css; components migrate to the tokens directly as they are rebuilt. */
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--surface);
-  --bg-tertiary: var(--raised);
-  --bg-input: var(--surface);
-  --border-color: var(--border-strong);
-  --border-focus: var(--accent);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-2);
-  --text-muted: var(--text-3);
-  --accent-hover: color-mix(in srgb, var(--accent) 85%, white);
-  --accent-glow: var(--accent-soft);
-  --success: var(--ok);
-  --error: var(--danger);
-  --error-bg: var(--danger-soft);
-  --user-msg-bg: var(--raised);
-  --ai-msg-bg: var(--surface);
-  --radius-sm: var(--r-sm);
-  --radius-md: var(--r-md);
-  --radius-lg: var(--r-lg);
-  --font-mono: var(--mono);
-  --font-sans: var(--font);
-  --transition: var(--dur-fast) var(--ease);
-}
-
 html {
   font-size: 15px;
   color-scheme: dark;
 }
 
 body {
-  font-family: var(--font-sans);
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
