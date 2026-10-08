@@ -235,6 +235,6 @@ The thinking row (replacing the loading dots) shows one status line per mode (no
 
 ## Checkpoint D: Complete
 - [ ] Every Success Criteria checkbox in SPEC.md is met
-- [ ] `git diff main -- frontend/package.json` shows no dependency changes, and the backend is unchanged (`git diff main --stat -- backend` is empty)
+- [x] `git diff main -- frontend/package.json` shows no dependency changes, and the backend is unchanged (`git diff main --stat -- backend` is empty)
 - [ ] Full regression pass at 360 and 500 px, a keyboard-only pass, a reduced-motion pass, a VoiceOver spot check
 - [ ] Ready for review and PR
