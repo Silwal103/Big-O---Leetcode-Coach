@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { complexityLabel, complexityTone, correctnessTone } from '../lib/ladder'
 import { latexToText, parseBlocks } from '../lib/richText'
 
@@ -136,7 +136,8 @@ function ReviewDetails({ message }) {
  * @param {{ message: { role: string, content: string, hintLevel?: number, revealsSolution?: boolean } }} props
  * @returns {JSX.Element}
  */
-export function Message({ message }) {
+// Memoized: typing in the composer re-renders App, and replies don't need re-parsing.
+export const Message = memo(function Message({ message }) {
   if (message.role === 'user') {
     return (
       <div className="message message--user">
@@ -161,4 +162,4 @@ export function Message({ message }) {
       )}
     </div>
   )
-}
+})

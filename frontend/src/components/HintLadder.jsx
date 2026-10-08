@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { isTypingTarget } from '../lib/keys'
 import { STEPS, ladderCaption, nextHintMode, stepForLevel } from '../lib/ladder'
 
@@ -18,9 +18,16 @@ export function HintLadder({ level, busy, onRequest }) {
   const solutionRef = useRef(null)
   const step = stepForLevel(level)
 
+  // Latest props for the global key handler, so it subscribes once instead of every render.
+  const latest = useRef({ level, busy, onRequest })
+  useLayoutEffect(() => {
+    latest.current = { level, busy, onRequest }
+  })
+
   // Alt+H / Alt+R / Alt+E, matched on the physical key so macOS Option doesn't break it.
   useEffect(() => {
     const handleKeyDown = (event) => {
+      const { level, busy, onRequest } = latest.current
       if (!event.altKey || event.metaKey || event.ctrlKey || busy || isTypingTarget(event.target)) return
       const mode = { KeyH: nextHintMode(level), KeyR: 'review_approach', KeyE: 'explain_concept' }[event.code]
       if (!mode) return
@@ -29,7 +36,7 @@ export function HintLadder({ level, busy, onRequest }) {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [level, busy, onRequest])
+  }, [])
 
   const openSolutionDialog = () => {
     const dialog = dialogRef.current

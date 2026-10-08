@@ -269,7 +269,8 @@ function App() {
 
       {/* Main Chat Area */}
       <main className="app-main">
-        <ProblemContext context={context} onChange={setContext} />
+        {/* Keyed by session so a manual open/closed choice doesn't carry over to another problem. */}
+        <ProblemContext key={activeKey} context={context} onChange={setContext} />
         <div className="chat-area" role="log" aria-live="polite" aria-label="Conversation">
           {messages.length === 0 && !loading && <EmptyState onSuggest={suggest} />}
 
