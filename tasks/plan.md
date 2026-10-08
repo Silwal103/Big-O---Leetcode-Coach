@@ -62,7 +62,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 - [x] Task 9: Toolbar and favicon icons from the mascot SVG (S)
 
 ### Checkpoint D: Complete
-- [ ] Every SPEC success criterion is met
+- [x] Every SPEC success criterion is met
 
 ## Risks and Mitigations
 

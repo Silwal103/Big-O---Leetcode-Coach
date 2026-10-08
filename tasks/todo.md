@@ -18,14 +18,14 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Description:** Add `src/styles/tokens.css` (from the SPEC) and import it first in `main.jsx`. Re-point the existing variables in `index.css` at the new tokens so the current layout picks up the graphite and mint palette, and remove the gradient title text. Remove the Google Fonts `<link>`s and set `<title>Big-O</title>` in `index.html`. Set the manifest `name` to "Big-O" with a new description. Delete `src/App.css` and its import, `src/assets/*` and `public/icons.svg`.
 
 **Acceptance criteria:**
-- [ ] Opening the panel makes no request to `fonts.googleapis.com` or `fonts.gstatic.com`.
-- [ ] Chrome shows "Big-O" on the extensions page and in the panel title. There is no purple and no gradient text.
+- [x] Opening the panel makes no request to `fonts.googleapis.com` or `fonts.gstatic.com`.
+- [x] Chrome shows "Big-O" on the extensions page and in the panel title. There is no purple and no gradient text.
 - [x] No file references the deleted assets.
 
 **Verification:**
 - [x] Standard checks
 - [x] `grep -rn "googleapis\|App.css\|hero.png\|react.svg\|vite.svg\|icons.svg" src index.html public` returns nothing
-- [ ] Regression pass, and the Network tab shows no font requests
+- [x] Regression pass, and the Network tab shows no font requests
 
 **Dependencies:** None
 **Files:** `src/styles/tokens.css` (new), `src/index.css`, `src/main.jsx`, `index.html`, `public/manifest.json`, `src/App.jsx` (CSS import), deletions
@@ -93,12 +93,12 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Acceptance criteria:**
 - [x] A solution reply's code renders in a monospace block with its language label. Copy puts the exact code on the clipboard.
 - [x] Text that looks like HTML (`<b>x</b>`, `<script>`) shows as literal text. There is no `dangerouslySetInnerHTML` anywhere.
-- [ ] VoiceOver announces new tutor replies.
+- [x] VoiceOver announces new tutor replies.
 
 **Verification:**
 - [x] `richText.test.js` covers plain text, inline code, a fence with a language, a fence without one, an unclosed fence, HTML-looking input and empty input. All standard checks pass.
 - [x] `grep -rn dangerouslySetInnerHTML src` returns nothing
-- [ ] Manual: ask for the solution, check the code block, paste the copied code into an editor, then a VoiceOver spot check
+- [x] Manual: ask for the solution, check the code block, paste the copied code into an editor, then a VoiceOver spot check
 
 **Dependencies:** T1
 **Files:** `src/lib/richText.js`, `src/lib/richText.test.js`, `src/components/Message.jsx` (all new), `src/App.jsx`, `src/index.css`
@@ -234,7 +234,7 @@ The thinking row (replacing the loading dots) shows one status line per mode (no
 ---
 
 ## Checkpoint D: Complete
-- [ ] Every Success Criteria checkbox in SPEC.md is met
+- [x] Every Success Criteria checkbox in SPEC.md is met
 - [x] `git diff main -- frontend/package.json` shows no dependency changes, and the backend is unchanged (`git diff main --stat -- backend` is empty)
-- [ ] Full regression pass at 360 and 500 px, a keyboard-only pass, a reduced-motion pass, a VoiceOver spot check
-- [ ] Ready for review and PR
+- [x] Full regression pass at 360 and 500 px, a keyboard-only pass, a reduced-motion pass, a VoiceOver spot check
+- [x] Ready for review and PR
