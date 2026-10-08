@@ -37,7 +37,7 @@ All tasks edit `App.jsx`, so they run **in order**. Nothing can be done in paral
 
 ### Phase 1: Shell
 - [x] Task 1: Design tokens, system fonts, rename to Big-O, delete template leftovers (S)
-- [ ] Task 2: Header: mascot mark, wordmark, problem chip, icon actions (M)
+- [x] Task 2: Header: mascot mark, wordmark, problem chip, icon actions (M)
 - [ ] Task 3: Collapsible problem context (S)
 
 ### Checkpoint A: Shell

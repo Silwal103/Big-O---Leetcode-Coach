@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { getActiveTabContext, isExtension } from './extension'
+import { Header } from './components/Header'
 import { EMPTY_CONTEXT, loadStore, saveStore, sessionFor, sessionKeyForImport, upsertSession } from './sessions'
 
 /**
@@ -68,7 +69,7 @@ function App() {
         setHintLevel(next.hintLevel)
         setContext({ ...next.context, ...found })
       }
-      setContextStatus(imported.title ? `Imported: ${imported.title}` : 'No LeetCode problem found')
+      setContextStatus(imported.title ? 'Synced from tab' : 'No LeetCode problem found')
     } catch (err) {
       setContextStatus('Import failed')
       setError(err.message || 'Could not read the current tab.')
@@ -219,32 +220,17 @@ function App() {
 
   return (
     <>
-      {/* Header */}
-      <header className="app-header">
-        <span className="app-header__icon">🧠</span>
-        <h1 className="app-header__title">Big-O</h1>
-        {isExtension && (
-          <button className="context-refresh-btn" onClick={refreshContext} disabled={loading}>
-            Refresh tab
-          </button>
-        )}
-        <button className="context-refresh-btn" onClick={resetSession} disabled={loading}>
-          New problem
-        </button>
-        <button className="context-refresh-btn" onClick={clearConversation} disabled={loading || messages.length === 0}>
-          Clear chat
-        </button>
-        <span className="app-header__badge">{contextStatus}</span>
-        <motion.span
-          key={hintLevel}
-          className="app-header__badge"
-          initial={shouldReduceMotion ? false : { opacity: 0.5, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={motionTransition}
-        >
-          Level {hintLevel}/5
-        </motion.span>
-      </header>
+      <Header
+        title={context.title}
+        status={contextStatus}
+        hintLevel={hintLevel}
+        canRefresh={isExtension}
+        busy={loading}
+        hasMessages={messages.length > 0}
+        onRefresh={refreshContext}
+        onNewProblem={resetSession}
+        onClearChat={clearConversation}
+      />
 
       {/* Main Chat Area */}
       <main className="app-main">

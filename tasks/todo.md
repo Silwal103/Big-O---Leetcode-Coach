@@ -38,12 +38,12 @@ All commands run from `frontend/`. **Standard checks** = `npm run lint` clean, `
 **Description:** Build `Mascot.jsx` with only the `idle` pose for now (24×24 SVG ring with two eye marks, `size` prop), `IconButton.jsx` (`aria-label`, `title` showing the shortcut, `:focus-visible` ring from `--focus`), and `Header.jsx`. The header is 44 px and sticky with the glass effect. It holds the mascot, the "Big-O" wordmark, a problem chip (title truncated with an ellipsis, plus a quieter status line that replaces the uppercase pill), and icon buttons for Refresh tab (extension only), New problem and Clear chat, all wired to the existing handlers. The level badge goes away here; the hint path replaces it in T7. Until then, show the level as quiet text in the chip.
 
 **Acceptance criteria:**
-- [ ] At 360 px the header is a single row with nothing wrapping. A long title is cut off with an ellipsis, and the full title is in its tooltip.
+- [x] At 360 px the header is a single row with nothing wrapping. A long title is cut off with an ellipsis, and the full title is in its tooltip.
 - [ ] Each icon button has an accessible name and a visible focus ring, and is disabled under the same conditions as before.
 - [ ] Refresh tab, New problem and Clear chat behave exactly as before.
 
 **Verification:**
-- [ ] Standard checks
+- [x] Standard checks
 - [ ] Manual at 360 and 500 px. Tab through the header and check the focus ring is visible on every button.
 - [ ] Regression pass
 
