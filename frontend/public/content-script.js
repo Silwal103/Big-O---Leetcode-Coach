@@ -11,8 +11,6 @@ function textFromSelectors(selectors) {
 function editorCode() {
   // Monaco renders each line as an absolutely positioned .view-line (DOM order != line order)
   // and draws spaces as NBSP, so join the lines ourselves instead of reading one textContent.
-  // ponytail: Monaco only renders lines near the viewport; very long code scrolled out of view
-  // is cut. Upgrade path: read monaco.editor.getModels() via chrome.scripting in the MAIN world.
   const lines = [...document.querySelectorAll('.monaco-editor .view-line')]
   if (lines.length) {
     return lines
