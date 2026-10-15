@@ -20,13 +20,34 @@ export async function getActiveTabContext() {
     return { title: '', description: '', constraints: '', examples: '', code: '', language: '', url: tab?.url || '' }
   }
 
+  let context
   try {
-    return await requestContext(tab.id)
+    context = await requestContext(tab.id)
   } catch (err) {
     // Tabs opened before the extension was installed or reloaded have no live content script.
     if (!err.message.includes('Receiving end does not exist')) throw err
     await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content-script.js'] })
-    return requestContext(tab.id)
+    context = await requestContext(tab.id)
+  }
+  const code = await fullEditorCode(tab.id)
+  return code ? { ...context, code } : context
+}
+
+// Monaco only renders lines near the viewport, so the content script's DOM scrape misses the rest.
+// The editor model holds the whole file but lives in the page's own JS world.
+async function fullEditorCode(tabId) {
+  try {
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId },
+      world: 'MAIN',
+      func: () => {
+        const { editor } = globalThis.monaco ?? {}
+        return (editor?.getEditors?.()[0]?.getModel() ?? editor?.getModels()[0])?.getValue()
+      },
+    })
+    return typeof result?.result === 'string' ? result.result.trimEnd() : ''
+  } catch {
+    return '' // fall back to the DOM scrape
   }
 }
 

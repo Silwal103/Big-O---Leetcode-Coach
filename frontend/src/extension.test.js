@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 const calls = []
 let failuresLeft = 0
 let failureMessage = ''
+let editorModelValue = undefined
 let activeTab = { id: 7, url: 'https://leetcode.com/problems/two-sum/' }
 globalThis.chrome = {
   runtime: { id: 'test-extension', lastError: undefined },
@@ -23,7 +24,11 @@ globalThis.chrome = {
     },
   },
   scripting: {
-    executeScript: async ({ target, files }) => {
+    executeScript: async ({ target, files, func }) => {
+      if (func) {
+        calls.push(['readEditor', target.tabId])
+        return [{ result: editorModelValue }]
+      }
       calls.push(['executeScript', target.tabId, files[0]])
     },
   },
@@ -41,7 +46,15 @@ test('injects the content script and retries when the tab has no live receiver',
     ['sendMessage', 7],
     ['executeScript', 7, 'content-script.js'],
     ['sendMessage', 7],
+    ['readEditor', 7],
   ])
+})
+
+test('full editor model code replaces the DOM-scraped code', async () => {
+  editorModelValue = 'line1\nline2\n\n'
+  assert.equal((await getActiveTabContext()).code, 'line1\nline2')
+  editorModelValue = undefined
+  assert.equal((await getActiveTabContext()).code, undefined)
 })
 
 test('other messaging errors are not retried', async () => {
